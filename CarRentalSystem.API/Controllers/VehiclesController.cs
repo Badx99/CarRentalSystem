@@ -1,3 +1,4 @@
+using CarRentalSystem.Application.Common.Models;
 using CarRentalSystem.Application.Features.Vehicles.Commands.CreateVehicle;
 using CarRentalSystem.Application.Features.Vehicles.Commands.DeleteVehicle;
 using CarRentalSystem.Application.Features.Vehicles.Commands.UpdateVehicle;
@@ -5,6 +6,7 @@ using CarRentalSystem.Application.Features.Vehicles.Commands.UpdateVehicleStatus
 using CarRentalSystem.Application.Features.Vehicles.Queries.GetAllVehicles;
 using CarRentalSystem.Application.Features.Vehicles.Queries.GetAvailableVehicles;
 using CarRentalSystem.Application.Features.Vehicles.Queries.GetVehicleById;
+using CarRentalSystem.Application.Features.Vehicles.Queries.SearchVehicles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -197,5 +199,17 @@ public class VehiclesController : ControllerBase
         {
             return NotFound(new { error = ex.Message });
         }
+    }
+
+
+    /// <summary>
+    /// Search vehicles with filters and pagination
+    /// </summary>
+    [HttpGet("search")]
+    [ProducesResponseType(typeof(PagedResult<VehicleSearchDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<VehicleSearchDto>>> Search([FromQuery] SearchVehiclesQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 }

@@ -1,11 +1,15 @@
+using CarRentalSystem.Application.Common.Models;
 using CarRentalSystem.Application.Features.Reservations.Commands.CancelReservation;
 using CarRentalSystem.Application.Features.Reservations.Commands.CompleteReservation;
 using CarRentalSystem.Application.Features.Reservations.Commands.ConfirmReservation;
 using CarRentalSystem.Application.Features.Reservations.Commands.CreateReservation;
+using CarRentalSystem.Application.Features.Reservations.Commands.GenerateReservationQRCode;
 using CarRentalSystem.Application.Features.Reservations.Commands.StartReservation;
+using CarRentalSystem.Application.Features.Reservations.Queries.GenerateReservationReceipt;
 using CarRentalSystem.Application.Features.Reservations.Queries.GetAllReservations;
 using CarRentalSystem.Application.Features.Reservations.Queries.GetReservationById;
 using CarRentalSystem.Application.Features.Reservations.Queries.GetReservationsByCustomer;
+using CarRentalSystem.Application.Features.Reservations.Queries.SearchReservations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -284,5 +288,60 @@ public class ReservationsController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Generate QR code for a reservation
+    /// </summary>
+    [HttpPost("{id}/generate-qrcode")]
+    [Authorize(Roles = "Administrator,Employee")]
+    [ProducesResponseType(typeof(GenerateReservationQRCodeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<GenerateReservationQRCodeResponse>> GenerateQRCode(Guid id)
+    {
+        try
+        {
+            var command = new GenerateReservationQRCodeCommand(id);
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Download reservation receipt as PDF
+    /// </summary>
+    [HttpGet("{id}/receipt")]
+    [Authorize]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadReceipt(Guid id)
+    {
+        try
+        {
+            var query = new GenerateReservationReceiptQuery(id);
+            var result = await _mediator.Send(query);
+
+            return File(result.PdfBytes, "application/pdf", result.FileName);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Search reservations with filters and pagination
+    /// </summary>
+    [HttpGet("search")]
+    [Authorize(Roles = "Administrator,Employee")]
+    [ProducesResponseType(typeof(PagedResult<ReservationSearchDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<ReservationSearchDto>>> Search([FromQuery] SearchReservationsQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 }

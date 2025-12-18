@@ -22,4 +22,8 @@
     <ProjectReference Include="..\CarRentalSystem.Infrastructure\CarRentalSystem.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\qrcodes\" />
+  </ItemGroup>
+
 </Project>

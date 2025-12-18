@@ -14,11 +14,13 @@ namespace CarRentalSystem.Application.Features.Customers.Commands.RegisterCustom
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
+        public readonly IEmailService _emailService;
 
-        public RegisterCustomerCommandHandler(IUserRepository userRepository,IPasswordHasher passwordHasher)
+        public RegisterCustomerCommandHandler(IUserRepository userRepository,IPasswordHasher passwordHasher,IEmailService emailService)
         {
             _userRepository = userRepository;
             _passwordHasher=passwordHasher;
+            _emailService = emailService;
         }
 
         public async Task<RegisterCustomerResponse> Handle(
@@ -53,6 +55,22 @@ namespace CarRentalSystem.Application.Features.Customers.Commands.RegisterCustom
 
             // Step 4: Save to database
             await _userRepository.AddAsync(customer, cancellationToken);
+
+            // SEND WELCOME EMAIL
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendWelcomeEmailAsync(
+                        customer.Email,
+                        customer.FullName,
+                        cancellationToken);
+                }
+                catch
+                {
+                    // Ignore email errors
+                }
+            }, cancellationToken);
 
             // Step 5: Return the response
             return new RegisterCustomerResponse

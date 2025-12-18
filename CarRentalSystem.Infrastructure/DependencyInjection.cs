@@ -39,6 +39,14 @@ namespace CarRentalSystem.Infrastructure
             // Register other infrastructure services here
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
+            services.AddScoped<IQRCodeService, QRCodeService>();
+            services.AddScoped<IPdfService, PdfService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IExportService, ExportService>();
+
+            // Configure Email Settings
+            services.Configure<EmailSettings>(
+                configuration.GetSection(EmailSettings.SectionName));
 
             //JWT SETTINGS CONFIGURATION
             services.Configure<JwtSettings>(

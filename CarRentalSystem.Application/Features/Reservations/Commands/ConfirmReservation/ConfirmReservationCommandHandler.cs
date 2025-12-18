@@ -1,3 +1,4 @@
+using CarRentalSystem.Application.Common.Interfaces;
 using CarRentalSystem.Domain.Interfaces;
 using MediatR;
 
@@ -6,10 +7,12 @@ namespace CarRentalSystem.Application.Features.Reservations.Commands.ConfirmRese
     public class ConfirmReservationCommandHandler : IRequestHandler<ConfirmReservationCommand, ConfirmReservationResponse>
     {
         private readonly IReservationRepository _reservationRepository;
+        private readonly IEmailService _emailService;
 
-        public ConfirmReservationCommandHandler(IReservationRepository reservationRepository)
+        public ConfirmReservationCommandHandler(IReservationRepository reservationRepository,IEmailService emailService)
         {
             _reservationRepository = reservationRepository;
+            _emailService = emailService;
         }
 
         public async Task<ConfirmReservationResponse> Handle(
@@ -24,6 +27,28 @@ namespace CarRentalSystem.Application.Features.Reservations.Commands.ConfirmRese
 
             reservation.Confirm();
             await _reservationRepository.UpdateAsync(reservation, cancellationToken);
+
+            //SEND CONFIRMATION EMAIL
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var vehicleInfo = $"{reservation.Vehicle.Brand} {reservation.Vehicle.Model}";
+                    await _emailService.SendReservationConfirmationEmailAsync(
+                        reservation.Customer.Email,
+                        reservation.Customer.FullName,
+                        reservation.Id,
+                        reservation.StartDate,
+                        reservation.EndDate,
+                        vehicleInfo,
+                        cancellationToken);
+                }
+                catch
+                {
+                    // Ignore email errors
+                }
+            }, cancellationToken);
+
 
             return new ConfirmReservationResponse
             {
