@@ -40,7 +40,7 @@ namespace CarRentalSystem.Domain.Entities
             decimal? dailyRate = null,
             string? imageUrl = null)
         {
-            ValidateVehiculeInfo(brand, model, year, color, mileage, dailyRate);
+            ValidateVehicleInfo(brand, model, year, color, mileage, dailyRate);
             ValidateLicensePlate(licensePlate);
 
             return new Vehicle
@@ -70,7 +70,7 @@ namespace CarRentalSystem.Domain.Entities
             decimal? dailyRate = null,
             string? imageUrl = null)
         {
-            ValidateVehiculeInfo(brand, model, year, color, mileage, dailyRate);
+            ValidateVehicleInfo(brand, model, year, color, mileage, dailyRate);
 
             Brand = brand.Trim();
             Model = model.Trim();
@@ -133,7 +133,7 @@ namespace CarRentalSystem.Domain.Entities
 
 
         // VALIDATION METHODS
-        private static void ValidateVehiculeInfo(
+        private static void ValidateVehicleInfo(
             string brand,
             string model,
             int year,

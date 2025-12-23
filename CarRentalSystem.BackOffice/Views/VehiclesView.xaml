@@ -1,0 +1,336 @@
+<UserControl x:Class="CarRentalSystem.BackOffice.Views.VehiclesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Main Content -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Grid.Row="0" Text="Vehicle Management" 
+                       FontSize="28" FontWeight="Bold" 
+                       Foreground="#C5CE18" Margin="0,0,0,20"/>
+
+            <!-- Toolbar -->
+            <Grid Grid.Row="1" Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Search Box -->
+                <Grid Grid.Column="0" MaxWidth="400" HorizontalAlignment="Left">
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" FontFamily="Montserrat"
+                             Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="35" Padding="10,8,40,0"
+                             VerticalContentAlignment="Center">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#2A2A5A"/>
+                        </TextBox.Background>
+                    </TextBox>
+                    <TextBlock Text="🔍 Search vehicles..." FontSize="12" 
+                               HorizontalAlignment="Left" VerticalAlignment="Center"
+                               Foreground="#666" Margin="12,0,0,0" IsHitTestVisible="False"
+                               Visibility="{Binding SearchText, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=Inverse, FallbackValue=Visible}"/>
+                </Grid>
+
+                <!-- Action Buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="➕ Add Vehicle" Command="{Binding AddCommand}"
+                            Background="#32B743" Foreground="White" FontWeight="Bold"
+                            Padding="15,8" Margin="0,0,10,0" Cursor="Hand" BorderThickness="0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                        CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#28A73D"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
+                            Background="#28AEED" Foreground="White" FontWeight="Bold"
+                            Padding="15,8" Cursor="Hand" BorderThickness="0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                        CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#1E9BD8"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- DataGrid -->
+            <DataGrid Grid.Row="2" 
+                      ItemsSource="{Binding Vehicles}" 
+                      SelectedItem="{Binding SelectedVehicle}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      Background="Transparent"
+                      BorderBrush="#462AD8"
+                      BorderThickness="1"
+                      RowBackground="#1B1448"
+                      AlternatingRowBackground="#2A2A5A"
+                      Foreground="White"
+                      FontSize="13"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#3A3A6A"
+                      HeadersVisibility="Column"
+                      Margin="0,0,20,0">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#462AD8"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Setter Property="BorderBrush" Value="#5A3AE8"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#462AD8"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.CellStyle>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#462AD8"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Brand" Binding="{Binding Brand}" Width="*"/>
+                    <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="*"/>
+                    <DataGridTextColumn Header="Year" Binding="{Binding Year}" Width="70"/>
+                    <DataGridTextColumn Header="License Plate" Binding="{Binding LicensePlate}" Width="110"/>
+                    <DataGridTextColumn Header="Color" Binding="{Binding Color}" Width="80"/>
+                    <DataGridTextColumn Header="Type" Binding="{Binding VehicleTypeName}" Width="100"/>
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
+                    <DataGridTextColumn Header="Daily Rate" Binding="{Binding DailyRate, StringFormat=C2}" Width="90"/>
+                    <DataGridTemplateColumn Header="Actions" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="✏️" 
+                                            Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            Background="Yellow" Foreground="White" 
+                                            BorderThickness="0" Cursor="Hand" Padding="8,4"
+                                            ToolTip="Edit Vehicle" FontSize="16"/>
+                                    <Button Content="🗑️" 
+                                            Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            Background="Red" Foreground="White" 
+                                            BorderThickness="0" Cursor="Hand" Padding="8,4"
+                                            ToolTip="Delete Vehicle" FontSize="16"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <!-- Add/Edit Form Panel -->
+        <Border Grid.Column="1" Width="320" Background="#0D0935" CornerRadius="10" Padding="20"
+                Visibility="{Binding IsFormVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Form Header -->
+                    <TextBlock Text="{Binding FormTitle}" FontSize="20" FontWeight="Bold" 
+                               Foreground="#C5CE18" Margin="0,0,0,20"/>
+
+                    <!-- Brand -->
+                    <TextBlock Text="Brand *" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="32" Padding="8,6" Margin="0,0,0,15">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#1A1650"/>
+                        </TextBox.Background>
+                    </TextBox>
+
+                    <!-- Model -->
+                    <TextBlock Text="Model *" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="32" Padding="8,6" Margin="0,0,0,15">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#1A1650"/>
+                        </TextBox.Background>
+                    </TextBox>
+
+                    <!-- Year -->
+                    <TextBlock Text="Year *" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding Year, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="32" Padding="8,6" Margin="0,0,0,15">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#1A1650"/>
+                        </TextBox.Background>
+                    </TextBox>
+
+                    <!-- License Plate -->
+                    <TextBlock Text="License Plate *" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding LicensePlate, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="32" Padding="8,6" Margin="0,0,0,15"
+                             IsEnabled="{Binding IsEditMode, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#1A1650"/>
+                        </TextBox.Background>
+                    </TextBox>
+
+                    <!-- Color -->
+                    <TextBlock Text="Color *" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="32" Padding="8,6" Margin="0,0,0,15">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#1A1650"/>
+                        </TextBox.Background>
+                    </TextBox>
+
+                    <!-- Mileage -->
+                    <TextBlock Text="Mileage" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding Mileage, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="32" Padding="8,6" Margin="0,0,0,15">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#1A1650"/>
+                        </TextBox.Background>
+                    </TextBox>
+
+                    <!-- Daily Rate -->
+                    <TextBlock Text="Daily Rate" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding DailyRate, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="32" Padding="8,6" Margin="0,0,0,15">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#1A1650"/>
+                        </TextBox.Background>
+                    </TextBox>
+
+                    <!-- Vehicle Type -->
+                    <TextBlock Text="Vehicle Type *" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding VehicleTypes}"
+                              SelectedItem="{Binding SelectedVehicleType}"
+                              DisplayMemberPath="Name"
+                              FontSize="13" Height="32" Margin="0,0,0,15"
+                              Background="#1A1650" Foreground="White"/>
+
+                    <!-- Image URL -->
+                    <TextBlock Text="Image URL (optional)" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding ImageUrl, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13" Foreground="White" CaretBrush="LightGray"
+                             BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                             Height="32" Padding="8,6" Margin="0,0,0,15">
+                        <TextBox.Background>
+                            <SolidColorBrush Color="#1A1650"/>
+                        </TextBox.Background>
+                    </TextBox>
+
+                    <!-- Validation Message -->
+                    <TextBlock Text="{Binding ValidationMessage}" 
+                               Foreground="#FF6B6B" FontSize="11" TextWrapping="Wrap"
+                               Margin="0,0,0,15"
+                               Visibility="{Binding ValidationMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                    <!-- Form Buttons -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                        <Button Content="Cancel" Command="{Binding CancelCommand}"
+                                Background="#666" Foreground="White" FontWeight="Bold"
+                                Padding="20,10" Margin="0,0,10,0" Cursor="Hand" BorderThickness="0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                            CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="#555"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Content="Save" Command="{Binding SaveCommand}"
+                                Background="#32B743" Foreground="White" FontWeight="Bold"
+                                Padding="25,10" Cursor="Hand" BorderThickness="0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                            CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="#28A73D"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="border" Property="Background" Value="#444"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.ColumnSpan="2" Background="#80000000" 
+                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="⏳" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBlock Text="Loading..." FontSize="18" Foreground="White"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

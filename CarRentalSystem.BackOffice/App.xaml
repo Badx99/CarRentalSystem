@@ -2,8 +2,15 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:CarRentalSystem.BackOffice"
-             StartupUri="MainWindow.xaml">
+             ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
-         
+        <!-- Bool to Visibility Converter -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        
+        <!-- Inverse Bool to Visibility Converter -->
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        
+        <!-- String to Visibility Converter (Visible if not empty) -->
+        <local:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
     </Application.Resources>
 </Application>

@@ -1,0 +1,112 @@
+@using CarRentalSystem.FrontOffice.Models.ViewModels
+@model MyReservationsViewModel
+@{
+    ViewData["Title"] = "My Reservations";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>My Reservations</h2>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-4" id="reservationTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="current-tab" data-bs-toggle="tab" data-bs-target="#current" type="button" role="tab">Current & Upcoming</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">Past History</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="reservationTabsContent">
+    <!-- Current Reservations -->
+    <div class="tab-pane fade show active" id="current" role="tabpanel">
+        @if (Model.CurrentReservations.Any())
+        {
+            <div class="row g-4">
+                @foreach (var res in Model.CurrentReservations)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm status-@res.Status.ToLower()">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title text-primary"><i class="bi bi-receipt"></i> #@res.Id.ToString().Substring(0, 8)</h5>
+                                    <span class="badge bg-primary">@res.Status</span>
+                                </div>
+                                <h6 class="card-subtitle mb-2 text-muted">@res.VehicleBrand @res.VehicleModel</h6>
+                                <p class="card-text small mb-2"><i class="bi bi-license"></i> @res.VehicleLicensePlate</p>
+                                <hr />
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">Pick-up</small>
+                                        <small class="text-muted">Return</small>
+                                    </div>
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>@res.StartDate.ToString("MMM dd")</span>
+                                        <i class="bi bi-arrow-right text-muted"></i>
+                                        <span>@res.EndDate.ToString("MMM dd")</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h5 mb-0">$@res.TotalAmount</span>
+                                    <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id" class="btn btn-outline-primary btn-sm">Manage</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-secondary text-center py-4">
+                <i class="bi bi-calendar-x fs-2 mb-2"></i>
+                <p>You have no active reservations.</p>
+                <a asp-controller="Vehicles" asp-action="Catalog" class="btn btn-primary mt-2">Browse Vehicles</a>
+            </div>
+        }
+    </div>
+
+    <!-- Past Reservations -->
+    <div class="tab-pane fade" id="past" role="tabpanel">
+        @if (Model.PastReservations.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Vehicle</th>
+                            <th>Dates</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var res in Model.PastReservations)
+                        {
+                            <tr>
+                                <td>@res.Id.ToString().Substring(0, 8)</td>
+                                <td>@res.VehicleBrand @res.VehicleModel</td>
+                                <td>@res.StartDate.ToString("MMM dd") - @res.EndDate.ToString("MMM dd, yyyy")</td>
+                                <td>$@res.TotalAmount</td>
+                                <td><span class="badge bg-secondary">@res.Status</span></td>
+                                <td>
+                                    <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id" class="btn btn-sm btn-link">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-light text-center">
+                <p>No past reservation history found.</p>
+            </div>
+        }
+    </div>
+</div>

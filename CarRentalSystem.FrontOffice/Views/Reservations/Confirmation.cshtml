@@ -1,0 +1,65 @@
+@using CarRentalSystem.FrontOffice.Models.DTOs
+@model ReservationDetailDto
+@{
+    ViewData["Title"] = "Booking Confirmed";
+}
+
+<div class="container py-5 text-center">
+    <div class="card shadow-sm border-success mx-auto" style="max-width: 600px;">
+        <div class="card-body p-5">
+            <div class="mb-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            </div>
+            
+            <h1 class="h2 mb-3">Booking Confirmed!</h1>
+            <p class="lead text-muted mb-2">Thank you! Your reservation has been successfully created.</p>
+            <p class="small text-muted mb-4"><i class="bi bi-envelope"></i> A confirmation email has been sent to your registered email address.</p>
+            
+            <div class="bg-light p-3 rounded mb-4 text-start">
+                <div class="row">
+                    <div class="col-6 mb-2"><strong>Reservation ID:</strong></div>
+                    <div class="col-6 mb-2"># @Model.Id.ToString().Substring(0, 8)</div>
+                    
+                    <div class="col-6 mb-2"><strong>Vehicle:</strong></div>
+                    <div class="col-6 mb-2">@Model.VehicleBrand @Model.VehicleModel</div>
+                    
+                    <div class="col-6 mb-2"><strong>Pick-up:</strong></div>
+                    <div class="col-6 mb-2">@Model.StartDate.ToString("MMM dd, yyyy")</div>
+                    
+                    <div class="col-6 mb-2"><strong>Return:</strong></div>
+                    <div class="col-6 mb-2">@Model.EndDate.ToString("MMM dd, yyyy")</div>
+                    
+                    <div class="col-6"><strong>Total Amount:</strong></div>
+                    <div class="col-6 fw-bold text-success">$@Model.TotalAmount</div>
+                </div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="mb-4">
+                <p class="fw-bold mb-2">Scan for easy check-in:</p>
+                <div id="qrcode" class="d-flex justify-content-center"></div>
+            </div>
+
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a asp-action="MyReservations" class="btn btn-primary px-4">View My Reservations</a>
+                <a asp-controller="Vehicles" asp-action="Catalog" class="btn btn-outline-secondary px-4">Browse More Cars</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        // Generate QR Code with Reservation ID
+        new QRCode(document.getElementById("qrcode"), {
+            text: "@Model.Id",
+            width: 128,
+            height: 128,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    </script>
+}

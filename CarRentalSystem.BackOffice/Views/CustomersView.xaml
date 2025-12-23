@@ -1,0 +1,156 @@
+<UserControl x:Class="CarRentalSystem.BackOffice.Views.CustomersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="Customer Management" 
+                   FontSize="28" FontWeight="Bold" 
+                   Foreground="#C5CE18" Margin="0,0,0,20"/>
+
+        <!-- Toolbar -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Search Box -->
+            <Grid Grid.Column="0" MaxWidth="400" HorizontalAlignment="Left">
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="13" FontFamily="Montserrat"
+                         Foreground="White" CaretBrush="LightGray"
+                         BorderBrush="DarkGray" BorderThickness="0,0,0,2"
+                         Height="35" Padding="10,8,40,0"
+                         VerticalContentAlignment="Center">
+                    <TextBox.Background>
+                        <SolidColorBrush Color="#2A2A5A"/>
+                    </TextBox.Background>
+                </TextBox>
+                <TextBlock Text="🔍 Search by name or email..." FontSize="12" 
+                           HorizontalAlignment="Left" VerticalAlignment="Center"
+                           Foreground="#666" Margin="12,0,0,0" IsHitTestVisible="False"
+                           Visibility="{Binding SearchText, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=Inverse, FallbackValue=Visible}"/>
+            </Grid>
+
+            <!-- Refresh Button -->
+            <Button Grid.Column="1" Content="🔄 Refresh" Command="{Binding RefreshCommand}"
+                    Background="#28AEED" Foreground="White" FontWeight="Bold"
+                    Padding="15,8" Cursor="Hand" BorderThickness="0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1E9BD8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+
+        <!-- DataGrid -->
+        <DataGrid Grid.Row="2" 
+                  ItemsSource="{Binding Customers}" 
+                  SelectedItem="{Binding SelectedCustomer}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  Background="Transparent"
+                  BorderBrush="#462AD8"
+                  BorderThickness="1"
+                  RowBackground="#1B1448"
+                  AlternatingRowBackground="#2A2A5A"
+                  Foreground="White"
+                  FontSize="13"
+                  GridLinesVisibility="Horizontal"
+                  HorizontalGridLinesBrush="#3A3A6A"
+                  HeadersVisibility="Column">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#462AD8"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="10,8"/>
+                    <Setter Property="BorderBrush" Value="#5A3AE8"/>
+                    <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Padding" Value="10,8"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#462AD8"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#462AD8"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="*"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="130"/>
+                <DataGridTextColumn Header="License #" Binding="{Binding LicenseNumber}" Width="130"/>
+                <DataGridTextColumn Header="Date of Birth" Binding="{Binding DateOfBirth, StringFormat=MM/dd/yyyy}" Width="110"/>
+                <DataGridTextColumn Header="Joined" Binding="{Binding CreatedAt, StringFormat=MM/dd/yyyy}" Width="100"/>
+                <DataGridTemplateColumn Header="Actions" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="📅 Reservations" 
+                                    Command="{Binding DataContext.ViewReservationsCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                    Background="#462AD8" Foreground="White" FontSize="11"
+                                    Padding="8,4" Cursor="Hand" BorderThickness="0">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                                CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="border" Property="Background" Value="#3A24C2"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="3" Background="#80000000" 
+                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="⏳" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBlock Text="Loading customers..." FontSize="18" Foreground="White"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

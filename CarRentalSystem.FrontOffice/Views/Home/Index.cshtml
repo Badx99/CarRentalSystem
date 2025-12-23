@@ -1,8 +1,85 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using CarRentalSystem.FrontOffice.Models.ViewModels
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-5 mb-4 bg-light rounded-3 bg-gradient" style="background: url('/images/hero-bg.jpg'); background-size: cover; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
+    <div class="container-fluid py-5 text-center text-white">
+        <h1 class="display-5 fw-bold">Find Your Perfect Drive</h1>
+        <p class="fs-4">Premium vehicles for every occasion. Best rates guaranteed.</p>
+        
+        <div class="card p-4 mx-auto mt-4 text-dark" style="max-width: 600px; text-shadow: none;">
+            <form asp-controller="Vehicles" asp-action="Catalog" method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Pick-up Date</label>
+                    <input type="date" name="startDate" class="form-control" required value="@DateTime.Today.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Return Date</label>
+                    <input type="date" name="endDate" class="form-control" required value="@DateTime.Today.AddDays(3).ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="col-12 mt-3">
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">Search Available Cars</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12 text-center">
+        <h2>Featured Vehicles</h2>
+        <p class="text-muted">Choose from our most popular models</p>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+    @if(Model.FeaturedVehicles.Any())
+    {
+        @foreach (var vehicle in Model.FeaturedVehicles)
+        {
+            <div class="col">
+                <div class="vehicle-card h-100">
+                    <img src="@(vehicle.ImageUrl ?? "https://via.placeholder.com/400x250?text=Car+Image")" class="card-img-top" alt="@vehicle.Brand @vehicle.Model">
+                    <div class="vehicle-card-body d-flex flex-column h-100">
+                        <div class="mb-2">
+                            <span class="badge bg-secondary">@vehicle.VehicleTypeName</span>
+                        </div>
+                        <h5 class="card-title">@vehicle.Brand @vehicle.Model</h5>
+                        <p class="card-text text-muted">@vehicle.Year • @vehicle.Color</p>
+                        
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="h5 mb-0 text-primary">$@vehicle.DailyRate<small class="text-muted fs-6">/day</small></span>
+                            <a asp-controller="Vehicles" asp-action="Details" asp-route-id="@vehicle.Id" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center">
+            <p>No featured vehicles available at the moment.</p>
+        </div>
+    }
+</div>
+
+<div class="row bg-light py-5 rounded">
+    <div class="col-md-4 text-center">
+        <i class="bi bi-shield-check fs-1 text-primary"></i>
+        <h3>Secure Booking</h3>
+        <p>Your safety and privacy are our top priority.</p>
+    </div>
+    <div class="col-md-4 text-center">
+        <i class="bi bi-tag fs-1 text-primary"></i>
+        <h3>Best Price Guarantee</h3>
+        <p>We match any competitor's price for the same vehicle.</p>
+    </div>
+    <div class="col-md-4 text-center">
+        <i class="bi bi-headset fs-1 text-primary"></i>
+        <h3>24/7 Support</h3>
+        <p>Our team is alway available to assist you.</p>
+    </div>
 </div>

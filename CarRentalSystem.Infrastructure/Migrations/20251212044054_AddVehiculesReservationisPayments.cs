@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CarRentalSystem.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddVehiculesReservationisPayments : Migration
+    public partial class AddVehicleReservationsPayments : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

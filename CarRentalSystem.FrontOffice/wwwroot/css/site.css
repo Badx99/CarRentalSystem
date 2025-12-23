@@ -1,22 +1,162 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+/* Global Styles */
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #0dcaf0;
+  --light-bg: #f8f9fa;
+  --dark-text: #212529;
 }
 
 body {
-  margin-bottom: 60px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--dark-text);
+  background-color: #fcfcfc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Navbar */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Card Styling */
+.card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  /* Hover effect mainly for interactive cards like vehicles */
+}
+
+.vehicle-card {
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.vehicle-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.vehicle-card img {
+  height: 220px;
+  object-fit: cover;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.vehicle-card .card-body {
+  padding: 1.25rem;
+}
+
+/* Typography & Badges */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  color: #333;
+}
+
+.badge {
+  font-weight: 500;
+  padding: 0.5em 0.8em;
+}
+
+/* Status Colors */
+.status-available {
+  color: var(--success-color);
+  font-weight: bold;
+}
+
+.status-rented {
+  color: var(--danger-color);
+}
+
+.status-pending {
+  border-left: 4px solid var(--warning-color);
+}
+
+.status-confirmed {
+  border-left: 4px solid var(--primary-color);
+}
+
+.status-active {
+  border-left: 4px solid var(--success-color);
+}
+
+.status-completed {
+  border-left: 4px solid var(--secondary-color);
+  opacity: 0.9;
+}
+
+.status-cancelled {
+  border-left: 4px solid var(--danger-color);
+  opacity: 0.8;
+}
+
+/* Forms */
+.form-control:focus,
+.form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-floating>label {
+  color: #6c757d;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  transform: translateY(-1px);
+}
+
+/* Footer */
+footer {
+  background-color: #f8f9fa;
+  padding: 2rem 0;
+  margin-top: auto;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Utility */
+.text-justify {
+  text-align: justify;
+}
+
+.object-fit-cover {
+  object-fit: cover;
 }

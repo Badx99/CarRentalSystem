@@ -89,22 +89,23 @@ namespace CarRentalSystem.Application.Features.Vehicles.Queries.SearchVehicles
 
             // Apply pagination
             var items = query
-                .Skip((request.Page - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .Select(v => new VehicleSearchDto
-                {
-                    Id = v.Id,
-                    Brand = v.Brand,
-                    Model = v.Model,
-                    Year = v.Year,
-                    LicensePlate = v.LicensePlate,
-                    Color = v.Color,
-                    Status = v.Status.ToString(),
-                    VehicleTypeName = v.VehicleType.Name,
-                    DailyRate = (decimal)v.DailyRate,
-                    ImageUrl = v.ImageUrl
-                })
-                .ToList();
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(v => new VehicleSearchDto
+            {
+                Id = v.Id,
+                Brand = v.Brand ?? "",
+                Model = v.Model ?? "",
+                Year = v.Year,
+                LicensePlate = v.LicensePlate ?? "",
+                Color = v.Color ?? "",
+                Status = v.Status.ToString() ?? "Unknown",
+                VehicleTypeName = v.VehicleType != null ? v.VehicleType.Name ?? "Unknown" : "Unknown",
+                DailyRate = v.DailyRate ?? 0,
+                ImageUrl = v.ImageUrl ?? ""
+            })
+            .ToList();
+
 
             return new PagedResult<VehicleSearchDto>
             {

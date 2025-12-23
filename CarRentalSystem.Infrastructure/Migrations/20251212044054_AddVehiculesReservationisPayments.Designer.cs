@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CarRentalSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(CarRentalDbContext))]
-    [Migration("20251212044054_AddVehiculesReservationisPayments")]
-    partial class AddVehiculesReservationisPayments
+    [Migration("20251212044054_AddVehicleReservationsPayments")]
+    partial class AddVehicleReservationsPayments
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

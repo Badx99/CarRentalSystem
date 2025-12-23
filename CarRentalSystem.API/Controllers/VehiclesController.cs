@@ -15,14 +15,13 @@ namespace CarRentalSystem.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class VehiclesController : ControllerBase
 {
     private readonly IMediator _mediator;
 
     public VehiclesController(IMediator mediator)
     {
-        _mediator = mediator;
+        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
     /// <summary>
@@ -100,6 +99,7 @@ public class VehiclesController : ControllerBase
     /// <summary>
     /// Create a new vehicle
     /// </summary>
+    [Authorize]
     [HttpPost]
     [Authorize(Roles = "Administrator,Employee")]
     [ProducesResponseType(typeof(CreateVehicleResponse), StatusCodes.Status201Created)]
