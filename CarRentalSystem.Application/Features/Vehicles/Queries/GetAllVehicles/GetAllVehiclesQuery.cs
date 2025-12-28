@@ -20,8 +20,10 @@ namespace CarRentalSystem.Application.Features.Vehicles.Queries.GetAllVehicles
         public string Color { get; init; } = string.Empty;
         public int Mileage { get; init; }
         public string Status { get; init; } = string.Empty;
+        public decimal? DailyRate { get; init; }
         public decimal EffectiveDailyRate { get; init; }
         public string? ImageUrl { get; init; }
+        public Guid VehicleTypeId { get; init; }
         public string VehicleTypeName { get; init; } = string.Empty;
         public DateTime CreatedAt { get; init; }
     }

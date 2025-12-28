@@ -1,88 +1,97 @@
 @using CarRentalSystem.FrontOffice.Models.ViewModels
 @model BookingViewModel
 @{
-    ViewData["Title"] = "Confirm Booking";
+    ViewData["Title"] = "Confirm Your Journey";
 }
 
-<div class="container py-4">
+<div class="bg-purple text-light py-5 mb-5 shadow-sm">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-0"><i class="fas fa-shield-alt me-3"></i>Review & Book</h1>
+    </div>
+</div>
+
+<div class="container mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0"><i class="bi bi-shield-lock"></i> Secure Review & Book</h3>
-                </div>
-                <div class="card-body p-4">
-                    @if (TempData["Error"] != null)
-                    {
-                        <div class="alert alert-danger">@TempData["Error"]</div>
-                    }
-
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <img src="@(Model.Vehicle.ImageUrl ?? "https://via.placeholder.com/200")" class="img-fluid rounded border" alt="Car">
-                        </div>
-                        <div class="col-md-8">
-                            <h4>@Model.Vehicle.Brand @Model.Vehicle.Model</h4>
-                            <p class="text-muted">@Model.Vehicle.Year • @Model.Vehicle.VehicleTypeName</p>
-                            <ul class="list-unstyled">
-                                <li><i class="bi bi-check-circle text-success"></i> Free cancellation (up to 24h)</li>
-                                <li><i class="bi bi-check-circle text-success"></i> Instant confirmation</li>
-                            </ul>
-                        </div>
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-5 d-none d-md-block">
+                        <img src="@(string.IsNullOrEmpty(Model.Vehicle.ImageUrl) ? "/images/placeholder-car.jpg" : Model.Vehicle.ImageUrl)" 
+                             class="h-100 w-100 object-fit-cover" 
+                             alt="@Model.Vehicle.Brand @Model.Vehicle.Model"
+                             onerror="this.src='/images/placeholder-car.jpg'">
                     </div>
+                    <div class="col-md-7 p-4 p-lg-5">
+                        <form asp-action="Book" method="post" id="bookingForm">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="Vehicle.Id" />
+                            <input type="hidden" asp-for="StartDate" />
+                            <input type="hidden" asp-for="EndDate" />
+                            <input type="hidden" asp-for="DailyRate" />
 
-                    <hr />
+                            <div class="mb-5">
+                                <h6 class="text-purple fw-bold text-uppercase mb-2">Vehice Selection</h6>
+                                <h2 class="fw-bold mb-2">@Model.Vehicle.Brand @Model.Vehicle.Model</h2>
+                                <p class="text-muted mb-0">@Model.Vehicle.Year • @Model.Vehicle.VehicleTypeName • @Model.Vehicle.Color</p>
+                            </div>
 
-                    <form asp-action="Book" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="Vehicle.Id" />
-                        <input type="hidden" asp-for="StartDate" />
-                        <input type="hidden" asp-for="EndDate" />
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6 border-end">
-                                <h5 class="text-primary mb-3">Rental Details</h5>
-                                <div class="mb-2">
-                                    <strong>Pick-up:</strong>
-                                    <div class="text-muted">@Model.StartDate.ToString("dddd, MMMM dd, yyyy")</div>
+                            <div class="row g-4 mb-5">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 border-start border-purple border-4">
+                                        <small class="text-muted d-block text-uppercase fw-bold mb-1">Pick-up Date</small>
+                                        <h5 class="fw-bold mb-0">@Model.StartDate.ToString("MMM dd, yyyy")</h5>
+                                    </div>
                                 </div>
-                                <div class="mb-2">
-                                    <strong>Return:</strong>
-                                    <div class="text-muted">@Model.EndDate.ToString("dddd, MMMM dd, yyyy")</div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 border-start border-purple border-4">
+                                        <small class="text-muted d-block text-uppercase fw-bold mb-1">Return Date</small>
+                                        <h5 class="fw-bold mb-0">@Model.EndDate.ToString("MMM dd, yyyy")</h5>
+                                    </div>
                                 </div>
-                                <div>
-                                    <strong>Duration:</strong>
-                                    <span>@Model.RentalDays days</span>
+                                <div class="col-12">
+                                    <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-muted d-block text-uppercase fw-bold mb-1">Rental Duration</small>
+                                            <h5 class="fw-bold mb-0">@Model.RentalDays Days @(Model.RentalDays > 1 ? "s" : "")</h5>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block text-uppercase fw-bold mb-1">Price Per Day</small>
+                                            <h5 class="fw-bold mb-0">$@Model.DailyRate.ToString("N0")</h5>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 ps-md-4">
-                                <h5 class="text-primary mb-3">Price Breakdown</h5>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Daily Rate</span>
-                                    <span>$@Model.DailyRate.ToString("N2")</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Days</span>
-                                    <span>x @Model.RentalDays</span>
-                                </div>
-                                <hr />
-                                <div class="d-flex justify-content-between fs-4 fw-bold">
-                                    <span>Total</span>
-                                    <span class="text-success">$@Model.TotalAmount.ToString("N2")</span>
+
+                            <div class="card bg-purple text-light border-0 shadow-sm rounded-4 mb-5 animate-fade-in">
+                                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                                    <h4 class="fw-bold mb-0">Estimated Total</h4>
+                                    <h2 class="fw-bold mb-0">$@Model.TotalAmount.ToString("N2")</h2>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="mb-4">
-                            <label asp-for="Notes" class="form-label">Special Requests (Optional)</label>
-                            <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Any specific requirements..."></textarea>
-                        </div>
+                            <div class="mb-5">
+                                <label asp-for="Notes" class="form-label fw-bold small text-uppercase mb-2">Special Requests (Optional)</label>
+                                <textarea asp-for="Notes" class="form-control rounded-3 border-0 bg-light p-3" rows="3" placeholder="Tell us if you need child seats, GPS, or have any other requests..."></textarea>
+                            </div>
 
-                        <div class="d-flex gap-3">
-                            <a asp-controller="Vehicles" asp-action="Details" asp-route-id="@Model.Vehicle.Id" class="btn btn-outline-secondary btn-lg px-4">Go Back</a>
-                            <button type="submit" class="btn btn-success btn-lg px-5 flex-grow-1">Confirm Booking</button>
-                        </div>
-                    </form>
+                            <div class="alert alert-info border-0 shadow-sm rounded-3 py-3 mb-5">
+                                <div class="d-flex">
+                                    <i class="fas fa-info-circle fa-lg mt-1 me-3 text-purple"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Booking Confirmation</h6>
+                                        <p class="small mb-0 opacity-75">Your reservation will be processed immediately. You can view it in your history or download the receipt once confirmed.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                <a asp-controller="Vehicles" asp-action="Details" asp-route-id="@Model.Vehicle.Id" class="btn btn-outline-purple btn-lg px-4 flex-grow-1">Cancel</a>
+                                <button type="submit" class="btn btn-purple btn-lg px-5 shadow-purple flex-grow-2">
+                                    <i class="fas fa-check-circle me-2"></i>Confirm & Book Now
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

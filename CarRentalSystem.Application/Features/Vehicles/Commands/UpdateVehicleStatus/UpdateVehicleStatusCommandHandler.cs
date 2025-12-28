@@ -22,8 +22,13 @@ namespace CarRentalSystem.Application.Features.Vehicles.Commands.UpdateVehicleSt
                 throw new KeyNotFoundException($"Vehicle with ID '{request.Id}' not found.");
             }
 
+            if (!Enum.TryParse<CarRentalSystem.Domain.Enums.VehicleStatus>(request.Status, out var newStatus))
+            {
+                throw new ArgumentException($"Invalid status: '{request.Status}'");
+            }
+
             var previousStatus = vehicle.Status.ToString();
-            vehicle.SetStatus(request.Status);
+            vehicle.SetStatus(newStatus);
             await _vehicleRepository.UpdateAsync(vehicle, cancellationToken);
 
             return new UpdateVehicleStatusResponse

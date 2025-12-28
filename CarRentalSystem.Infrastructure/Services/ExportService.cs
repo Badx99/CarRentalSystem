@@ -26,7 +26,7 @@ public class ExportService : IExportService
 
     public async Task<byte[]> ExportReservationsToExcelAsync(CancellationToken cancellationToken = default)
     {
-        var reservations = await _reservationRepository.GetAllAsync(cancellationToken);
+        var reservations = await _reservationRepository.GetAllWithDetailsAsync(cancellationToken);
 
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Reservations");
@@ -76,7 +76,7 @@ public class ExportService : IExportService
 
     public async Task<byte[]> ExportVehiclesToExcelAsync(CancellationToken cancellationToken = default)
     {
-        var vehicles = await _vehicleRepository.GetAllAsync(cancellationToken);
+        var vehicles = await _vehicleRepository.GetAllWithTypeAsync(cancellationToken);
 
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Vehicles");

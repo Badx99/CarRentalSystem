@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CarRentalSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(CarRentalDbContext))]
-    [Migration("20251212044054_AddVehicleReservationsPayments")]
-    partial class AddVehicleReservationsPayments
+    [Migration("20251227052056_MainMigration")]
+    partial class MainMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -94,12 +94,11 @@ namespace CarRentalSystem.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)");
 
                     b.Property<string>("QRCode")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("date");

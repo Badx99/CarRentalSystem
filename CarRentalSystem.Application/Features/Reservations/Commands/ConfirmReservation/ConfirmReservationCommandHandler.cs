@@ -19,7 +19,7 @@ namespace CarRentalSystem.Application.Features.Reservations.Commands.ConfirmRese
             ConfirmReservationCommand request,
             CancellationToken cancellationToken)
         {
-            var reservation = await _reservationRepository.GetByIdAsync(request.Id, cancellationToken);
+            var reservation = await _reservationRepository.GetByIdWithDetailsAsync(request.Id, cancellationToken);
             if (reservation == null)
             {
                 throw new KeyNotFoundException($"Reservation with ID '{request.Id}' not found.");

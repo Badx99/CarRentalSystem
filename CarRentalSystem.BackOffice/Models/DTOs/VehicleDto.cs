@@ -13,6 +13,7 @@
         public string? ImageUrl { get; set; }
         public string VehicleTypeName { get; set; } = string.Empty;
         public decimal DailyRate { get; set; }
+        public decimal EffectiveDailyRate { get; set; }
         public Guid VehicleTypeId { get; set; }
     }
 }

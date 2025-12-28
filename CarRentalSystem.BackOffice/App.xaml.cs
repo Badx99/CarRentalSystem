@@ -44,6 +44,8 @@ namespace CarRentalSystem.BackOffice
             services.AddSingleton<ReservationsViewModel>();
             services.AddSingleton<CustomersViewModel>();
             services.AddSingleton<VehicleTypesViewModel>();
+            services.AddSingleton<EmployeesViewModel>();
+            services.AddSingleton<PaymentsViewModel>();
 
             // Register Views
             services.AddTransient<LoginWindow>();

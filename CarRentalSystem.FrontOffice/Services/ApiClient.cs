@@ -85,6 +85,35 @@ namespace CarRentalSystem.FrontOffice.Services
             }
         }
 
+        public async Task<CustomerDetailsDto?> GetCustomerProfileAsync()
+        {
+            try
+            {
+                return await GetAsync<CustomerDetailsDto>("customer/me");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ApiClient] GetCustomerProfile error: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<bool> UpdateCustomerProfileAsync(CustomerDetailsDto request)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PutAsync("customer/me", content);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ApiClient] UpdateCustomerProfile error: {ex.Message}");
+                return false;
+            }
+        }
+
         #endregion
 
         #region Vehicles (Public endpoints)
@@ -263,6 +292,37 @@ namespace CarRentalSystem.FrontOffice.Services
 
         #endregion
 
+        #region Payments
+
+        public async Task<CreatePaymentResponse?> CreatePaymentAsync(CreatePaymentRequest request)
+        {
+            try
+            {
+                return await PostAsync<CreatePaymentResponse>("payments", request);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ApiClient] CreatePayment error: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<bool> ConfirmReservationAsync(Guid id)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsync($"reservations/{id}/confirm", null);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ApiClient] ConfirmReservation error: {ex.Message}");
+                return false;
+            }
+        }
+
+        #endregion
+
         #region Helper Methods
 
         private async Task<T?> GetAsync<T>(string endpoint) where T : class
@@ -344,6 +404,39 @@ namespace CarRentalSystem.FrontOffice.Services
         public int Page { get; set; }
         public int PageSize { get; set; }
         public int TotalPages { get; set; }
+    }
+
+    public class CustomerDetailsDto
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string LicenseNumber { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; }
+        public int Age { get; set; }
+    }
+
+    public class CreatePaymentRequest
+    {
+        public Guid ReservationId { get; set; }
+        public decimal Amount { get; set; }
+        public int Method { get; set; } // 1=Cash, 2=CreditCard, 3=DebitCard, 4=BankTransfer, 5=Online
+        public string? TransactionReference { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class CreatePaymentResponse
+    {
+        public Guid Id { get; set; }
+        public Guid ReservationId { get; set; }
+        public decimal Amount { get; set; }
+        public string Method { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime PaymentDate { get; set; }
+        public decimal RemainingBalance { get; set; }
     }
 
     #endregion

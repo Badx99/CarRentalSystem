@@ -32,6 +32,12 @@
         <DataTemplate DataType="{x:Type vm:VehicleTypesViewModel}">
             <local:VehicleTypesView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EmployeesViewModel}">
+            <local:EmployeesView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PaymentsViewModel}">
+            <local:PaymentsView/>
+        </DataTemplate>
     </Window.Resources>
 
     <Border CornerRadius="12">
@@ -214,6 +220,47 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="📝" FontSize="18" VerticalAlignment="Center"/>
                                                 <TextBlock Text="Vehicle Types" Foreground="White" FontSize="14" 
+                                                           Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="border" Property="Background" Value="#1A1650"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Employees (Admin only) -->
+                            <Button Command="{Binding NavigateToEmployeesCommand}" Cursor="Hand" Margin="0,5"
+                                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="border" Background="Transparent" CornerRadius="8" Padding="15,12">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="👔" FontSize="18" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Employees" Foreground="White" FontSize="14" 
+                                                           Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="border" Property="Background" Value="#1A1650"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            <!-- Payments (Admin only) -->
+                            <Button Command="{Binding NavigateToPaymentsCommand}" Cursor="Hand" Margin="0,5"
+                                    Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="border" Background="Transparent" CornerRadius="8" Padding="15,12">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="💳" FontSize="18" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Payments" Foreground="White" FontSize="14" 
                                                            Margin="12,0,0,0" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Border>

@@ -30,10 +30,10 @@ namespace CarRentalSystem.Infrastructure.Data.Configurations
                 .HasMaxLength(50);
 
             builder.Property(r => r.Notes)
-                .HasMaxLength(1000);
+                .HasMaxLength(1500);
 
             builder.Property(r => r.QRCode)
-                .HasMaxLength(500);
+                .HasColumnType("text");
 
             builder.Property(r => r.CreatedAt)
                 .IsRequired();

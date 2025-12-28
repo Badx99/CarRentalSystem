@@ -1,6 +1,7 @@
 ﻿using CarRentalSystem.Application.Common.Interfaces;
 using CarRentalSystem.Application.Common.Models;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -155,7 +156,7 @@ public class EmailService : IEmailService
             await client.ConnectAsync(
                 _emailSettings.SmtpHost,
                 _emailSettings.SmtpPort,
-                _emailSettings.EnableSsl,
+                SecureSocketOptions.StartTls,
                 cancellationToken);
 
             if (!string.IsNullOrEmpty(_emailSettings.Username))

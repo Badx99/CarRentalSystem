@@ -22,6 +22,7 @@ namespace CarRentalSystem.Application.Features.Reservations.Queries.GetAllReserv
         public int RentalDays { get; init; }
         public decimal TotalAmount { get; init; }
         public string Status { get; init; } = string.Empty;
+        public string PaymentStatus { get; init; } = string.Empty;
         public DateTime CreatedAt { get; init; }
     }
 

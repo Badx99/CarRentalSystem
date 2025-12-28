@@ -20,7 +20,9 @@ namespace CarRentalSystem.FrontOffice.Controllers
             string? search, 
             Guid? vehicleTypeId, 
             decimal? minPrice, 
-            decimal? maxPrice, 
+            decimal? maxPrice,
+            DateTime? startDate,
+            DateTime? endDate,
             int page = 1)
         {
             var viewModel = new VehicleCatalogViewModel
@@ -29,6 +31,8 @@ namespace CarRentalSystem.FrontOffice.Controllers
                 SelectedVehicleTypeId = vehicleTypeId,
                 MinPrice = minPrice,
                 MaxPrice = maxPrice,
+                StartDate = startDate,
+                EndDate = endDate,
                 CurrentPage = page,
                 PageSize = 12,
                 Vehicles = new PagedResult<VehicleDto> { Items = new List<VehicleDto>() } // Default empty
@@ -42,9 +46,11 @@ namespace CarRentalSystem.FrontOffice.Controllers
                     VehicleTypeId = vehicleTypeId,
                     MinPrice = minPrice,
                     MaxPrice = maxPrice,
+                    StartDate = startDate,
+                    EndDate = endDate,
                     Page = page,
-                    PageSize = 12,
-                    Status = "Available"
+                    PageSize = 12
+                    // Removed Status filter to show all vehicles
                 };
 
                 var searchResult = await _apiClient.SearchVehiclesAsync(query);

@@ -23,6 +23,7 @@ namespace CarRentalSystem.Application.Features.Reservations.Commands.CreateReser
         public int RentalDays { get; init; }
         public decimal TotalAmount { get; init; }
         public string Status { get; init; } = string.Empty;
+        public string? QRCode { get; init; }
         public string Message { get; init; } = string.Empty;
         public DateTime CreatedAt { get; init; }
     }

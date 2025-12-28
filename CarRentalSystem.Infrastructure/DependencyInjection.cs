@@ -35,6 +35,7 @@ namespace CarRentalSystem.Infrastructure
             services.AddScoped<IVehicleTypeRepository, VehicleTypeRepository>();
             services.AddScoped<IReservationRepository, ReservationRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             
             // Register other infrastructure services here
             services.AddScoped<IPasswordHasher, PasswordHasher>();

@@ -27,6 +27,13 @@ namespace CarRentalSystem.BackOffice.ViewModels
         private string _validationMessage = string.Empty;
         #endregion
 
+        #region Filter and Static Data
+        public List<string> VehicleStatuses { get; } = new()
+        {
+            "Available", "Rented", "Maintenance", "OutofService"
+        };
+        #endregion
+
         #region Form Properties
         private Guid _editingVehicleId;
         private string _brand = string.Empty;
@@ -37,7 +44,9 @@ namespace CarRentalSystem.BackOffice.ViewModels
         private int _mileage;
         private decimal _dailyRate;
         private VehicleTypeDto? _selectedVehicleType;
+        private string _status = "Available";
         private string _imageUrl = string.Empty;
+        private System.Windows.Media.Imaging.BitmapImage? _previewImage;
         #endregion
 
         public VehiclesViewModel(IApiClient apiClient)
@@ -52,6 +61,9 @@ namespace CarRentalSystem.BackOffice.ViewModels
             SaveCommand = new RelayCommand(async _ => await SaveAsync(), _ => CanSave());
             CancelCommand = new RelayCommand(_ => CancelEdit());
             DeleteCommand = new RelayCommand(async _ => await DeleteAsync(), _ => SelectedVehicle != null);
+            PreviewImageCommand = new RelayCommand(async _ => await PreviewImageAsync(), _ => !string.IsNullOrWhiteSpace(ImageUrl));
+            UpdateStatusCommand = new RelayCommand(async param => await UpdateStatusAsync(param as VehicleDto));
+            ExportCommand = new RelayCommand(async _ => await ExportAsync());
         }
 
         #region Public Properties - Collections
@@ -169,10 +181,22 @@ namespace CarRentalSystem.BackOffice.ViewModels
             set => SetProperty(ref _mileage, value);
         }
 
+        public decimal DailyRate
+        {
+            get => _dailyRate;
+            set => SetProperty(ref _dailyRate, value);
+        }
+
         public VehicleTypeDto? SelectedVehicleType
         {
             get => _selectedVehicleType;
             set => SetProperty(ref _selectedVehicleType, value);
+        }
+
+        public string Status
+        {
+            get => _status;
+            set => SetProperty(ref _status, value);
         }
 
         public string ImageUrl
@@ -191,7 +215,10 @@ namespace CarRentalSystem.BackOffice.ViewModels
         public ICommand EditCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
+
         public ICommand DeleteCommand { get; }
+        public ICommand UpdateStatusCommand { get; }
+        public ICommand ExportCommand { get; }
 
         #endregion
 
@@ -274,7 +301,9 @@ namespace CarRentalSystem.BackOffice.ViewModels
             LicensePlate = SelectedVehicle.LicensePlate;
             Color = SelectedVehicle.Color;
             Mileage = SelectedVehicle.Mileage;
+            DailyRate = SelectedVehicle.DailyRate;
             ImageUrl = SelectedVehicle.ImageUrl ?? string.Empty;
+            Status = SelectedVehicle.Status;
             SelectedVehicleType = VehicleTypes.FirstOrDefault(t => t.Id == SelectedVehicle.VehicleTypeId);
 
             IsEditMode = true;
@@ -299,7 +328,9 @@ namespace CarRentalSystem.BackOffice.ViewModels
             LicensePlate = string.Empty;
             Color = string.Empty;
             Mileage = 0;
+            DailyRate = 0;
             ImageUrl = string.Empty;
+            Status = "Available";
             SelectedVehicleType = VehicleTypes.FirstOrDefault();
             ValidationMessage = string.Empty;
         }
@@ -331,6 +362,9 @@ namespace CarRentalSystem.BackOffice.ViewModels
             if (Mileage < 0)
                 errors.Add("Mileage cannot be negative");
 
+            if(DailyRate < 0)
+                errors.Add("Rate cannot be negative");
+
             if (SelectedVehicleType == null)
                 errors.Add("Vehicle type is required");
 
@@ -342,6 +376,37 @@ namespace CarRentalSystem.BackOffice.ViewModels
 
             ValidationMessage = string.Empty;
             return true;
+        }
+
+        private async Task UpdateStatusAsync(VehicleDto? vehicle)
+        {
+            if (vehicle == null) return;
+
+            try
+            {
+                // This would be called from the DataGrid when a ComboBox selection changes
+                // Selection changes are usually handled via binding or a specific event/command
+                IsLoading = true;
+                var success = await _apiClient.UpdateVehicleStatusAsync(vehicle.Id, vehicle.Status);
+                
+                if (success)
+                {
+                    ShowMessage($"Status for {vehicle.Brand} {vehicle.Model} updated to {vehicle.Status}.", "Status Updated");
+                    await LoadVehiclesAsync();
+                }
+                else
+                {
+                    ShowError("Failed to update vehicle status.");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error updating status: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task SaveAsync()
@@ -363,10 +428,16 @@ namespace CarRentalSystem.BackOffice.ViewModels
                         Year = Year,
                         Color = Color.Trim(),
                         Mileage = Mileage,
+                        DailyRate = DailyRate,
                         VehicleTypeId = SelectedVehicleType!.Id,
                         ImageUrl = string.IsNullOrWhiteSpace(ImageUrl) ? null : ImageUrl.Trim()
                     };
                     success = await _apiClient.UpdateVehicleAsync(_editingVehicleId, request);
+
+                    if (success && Status != SelectedVehicle?.Status)
+                    {
+                        await _apiClient.UpdateVehicleStatusAsync(_editingVehicleId, Status);
+                    }
 
                     if (success)
                     {
@@ -383,6 +454,7 @@ namespace CarRentalSystem.BackOffice.ViewModels
                         LicensePlate = LicensePlate.Trim(),
                         Color = Color.Trim(),
                         Mileage = Mileage,
+                        DailyRate = DailyRate,
                         VehicleTypeId = SelectedVehicleType!.Id,
                         ImageUrl = string.IsNullOrWhiteSpace(ImageUrl) ? null : ImageUrl.Trim()
                     };
@@ -447,6 +519,41 @@ namespace CarRentalSystem.BackOffice.ViewModels
             }
         }
 
+        private async Task ExportAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                var fileBytes = await _apiClient.ExportVehiclesAsync();
+                
+                if (fileBytes == null || fileBytes.Length == 0)
+                {
+                    ShowError("Failed to export vehicles or no data available.");
+                    return;
+                }
+
+                var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "Excel Files (*.xlsx)|*.xlsx|All files (*.*)|*.*",
+                    FileName = $"Vehicles_{DateTime.Now:yyyyMMdd_HHmm}.xlsx"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    await System.IO.File.WriteAllBytesAsync(saveFileDialog.FileName, fileBytes);
+                    ShowMessage("Vehicles exported successfully!", "Export Complete");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error exporting vehicles: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
         #endregion
 
         #region Dialog Helpers
@@ -466,6 +573,66 @@ namespace CarRentalSystem.BackOffice.ViewModels
         {
             var result = MessageBox.Show(message, "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
             return result == MessageBoxResult.Yes;
+        }
+
+        #endregion
+
+        #region Image Preview
+
+        public System.Windows.Media.Imaging.BitmapImage? PreviewImage
+        {
+            get => _previewImage;
+            set => SetProperty(ref _previewImage, value);
+        }
+
+        public ICommand PreviewImageCommand { get; private set; }
+
+        private async Task PreviewImageAsync()
+        {
+            var image = await LoadImageFromUrl(ImageUrl);
+            if (image != null)
+            {
+                PreviewImage = image;
+            }
+        }
+
+        private async Task<System.Windows.Media.Imaging.BitmapImage?> LoadImageFromUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                ShowError("Image URL is empty.");
+                return null;
+            }
+
+            if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+                !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                ShowError("Invalid URL format. URL must start with http:// or https://");
+                return null;
+            }
+
+            try
+            {
+                using var httpClient = new System.Net.Http.HttpClient();
+                httpClient.Timeout = TimeSpan.FromSeconds(10);
+                var imageData = await httpClient.GetByteArrayAsync(url);
+
+                var bitmapImage = new System.Windows.Media.Imaging.BitmapImage();
+                using (var memStream = new System.IO.MemoryStream(imageData))
+                {
+                    bitmapImage.BeginInit();
+                    bitmapImage.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                    bitmapImage.StreamSource = memStream;
+                    bitmapImage.EndInit();
+                    bitmapImage.Freeze();
+                }
+                return bitmapImage;
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Failed to load image: {ex.Message}");
+                return null;
+            }
         }
 
         #endregion

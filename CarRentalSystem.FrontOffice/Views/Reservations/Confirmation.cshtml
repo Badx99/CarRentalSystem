@@ -4,62 +4,93 @@
     ViewData["Title"] = "Booking Confirmed";
 }
 
-<div class="container py-5 text-center">
-    <div class="card shadow-sm border-success mx-auto" style="max-width: 600px;">
-        <div class="card-body p-5">
-            <div class="mb-4">
-                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-            </div>
-            
-            <h1 class="h2 mb-3">Booking Confirmed!</h1>
-            <p class="lead text-muted mb-2">Thank you! Your reservation has been successfully created.</p>
-            <p class="small text-muted mb-4"><i class="bi bi-envelope"></i> A confirmation email has been sent to your registered email address.</p>
-            
-            <div class="bg-light p-3 rounded mb-4 text-start">
-                <div class="row">
-                    <div class="col-6 mb-2"><strong>Reservation ID:</strong></div>
-                    <div class="col-6 mb-2"># @Model.Id.ToString().Substring(0, 8)</div>
-                    
-                    <div class="col-6 mb-2"><strong>Vehicle:</strong></div>
-                    <div class="col-6 mb-2">@Model.VehicleBrand @Model.VehicleModel</div>
-                    
-                    <div class="col-6 mb-2"><strong>Pick-up:</strong></div>
-                    <div class="col-6 mb-2">@Model.StartDate.ToString("MMM dd, yyyy")</div>
-                    
-                    <div class="col-6 mb-2"><strong>Return:</strong></div>
-                    <div class="col-6 mb-2">@Model.EndDate.ToString("MMM dd, yyyy")</div>
-                    
-                    <div class="col-6"><strong>Total Amount:</strong></div>
-                    <div class="col-6 fw-bold text-success">$@Model.TotalAmount</div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-fade-in">
+                <div class="card-body p-0">
+                    <div class="bg-success text-white text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-check-circle fa-5x"></i>
+                        </div>
+                        <h1 class="fw-bold display-5 mb-2">Booking Confirmed!</h1>
+                        <p class="lead mb-0 opacity-75">Thank you, @Model.CustomerName! Your journey starts here.</p>
+                    </div>
+
+                    <div class="p-4 p-lg-5">
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-7">
+                                <h5 class="fw-bold mb-4 text-purple">Reservation Summary</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless align-middle">
+                                        <tbody>
+                                            <tr class="border-bottom">
+                                                <th class="py-3 text-muted small text-uppercase">Reservation ID</th>
+                                                <td class="py-3 fw-bold">#@Model.Id.ToString().Substring(0, 8).ToUpper()</td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="py-3 text-muted small text-uppercase">Vehicle</th>
+                                                <td class="py-3">
+                                                    <div class="fw-bold">@Model.VehicleBrand @Model.VehicleModel</div>
+                                                    <div class="small text-muted">@Model.VehicleTypeName • @Model.VehicleLicensePlate</div>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="py-3 text-muted small text-uppercase">Dates</th>
+                                                <td class="py-3">
+                                                    <div class="fw-bold">@Model.StartDate.ToString("MMM dd") - @Model.EndDate.ToString("MMM dd, yyyy")</div>
+                                                    <div class="small text-muted">@Model.RentalDays Days Total</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="py-3 text-muted small text-uppercase">Total Amount</th>
+                                                <td class="py-3 fw-bold text-success fs-4">$@Model.TotalAmount.ToString("N2")</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-5 text-center border-start d-flex flex-column align-items-center justify-content-center">
+                                <h6 class="fw-bold mb-3 text-purple text-uppercase">Your QR Code</h6>
+                                @if (!string.IsNullOrEmpty(Model.QRCode))
+                                {
+                                    <div class="p-3 bg-white shadow-sm border rounded-4 mb-3">
+                                        <img src="data:image/png;base64,@Model.QRCode" alt="Reservation QR Code" style="width: 150px; height: 150px;">
+                                    </div>
+                                    <p class="small text-muted px-4">Show this QR code to the counter staff for quick check-in.</p>
+                                }
+                                else
+                                {
+                                    <div class="p-4 bg-light rounded-4 mb-3">
+                                        <i class="fas fa-qrcode fa-4x text-muted opacity-25"></i>
+                                    </div>
+                                    <p class="small text-muted">QR code will be available shortly.</p>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info border-0 rounded-4 p-4 d-flex align-items-center mb-5">
+                            <i class="fas fa-envelope-open-text fa-2x text-purple me-4 opacity-50"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Confirmation Email Sent</h6>
+                                <p class="small mb-0 opacity-75">We've sent the booking details and instructions to <strong>@Model.CustomerEmail</strong>.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-3">
+                            <button type="button" class="btn btn-purple btn-lg px-4 shadow-purple flex-grow-1" onclick="downloadReceipt('@Model.Id')">
+                                <i class="fas fa-file-pdf me-2"></i>Download Receipt
+                            </button>
+                            <a asp-action="MyReservations" class="btn btn-outline-purple btn-lg px-4 flex-grow-1">
+                                <i class="fas fa-list-ul me-2"></i>View My History
+                            </a>
+                            <a asp-controller="Vehicles" asp-action="Catalog" class="btn btn-light btn-lg px-4 flex-grow-1">
+                                <i class="fas fa-car-side me-2"></i>Browse More
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <!-- QR Code Section -->
-            <div class="mb-4">
-                <p class="fw-bold mb-2">Scan for easy check-in:</p>
-                <div id="qrcode" class="d-flex justify-content-center"></div>
-            </div>
-
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a asp-action="MyReservations" class="btn btn-primary px-4">View My Reservations</a>
-                <a asp-controller="Vehicles" asp-action="Catalog" class="btn btn-outline-secondary px-4">Browse More Cars</a>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <!-- QR Code Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script>
-        // Generate QR Code with Reservation ID
-        new QRCode(document.getElementById("qrcode"), {
-            text: "@Model.Id",
-            width: 128,
-            height: 128,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-    </script>
-}

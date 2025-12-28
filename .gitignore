@@ -443,5 +443,4 @@ appsettings.Production.json
 */wwwroot/uploads/
 */wwwroot/qrcodes/
 */wwwroot/pdfs/
-
-
+CarRentalSystem.API/appsettings.json

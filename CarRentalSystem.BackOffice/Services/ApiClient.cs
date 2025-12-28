@@ -123,6 +123,26 @@ namespace CarRentalSystem.BackOffice.Services
             });
         }
 
+        private async Task<bool> PatchAsync(string endpoint, object data)
+        {
+            return await ExecuteWithRetry(async () =>
+            {
+                try
+                {
+                    var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+                    var method = new HttpMethod("PATCH");
+                    var request = new HttpRequestMessage(method, endpoint) { Content = content };
+                    var response = await _httpClient.SendAsync(request);
+                    return await HandleBoolResponse(response);
+                }
+                catch (Exception ex)
+                {
+                    LogError($"PATCH {endpoint}", ex);
+                    return false;
+                }
+            });
+        }
+
         private async Task<bool> DeleteAsync(string endpoint)
         {
             return await ExecuteWithRetry(async () =>
@@ -140,24 +160,53 @@ namespace CarRentalSystem.BackOffice.Services
             });
         }
 
+        private async Task<byte[]?> GetFileAsync(string endpoint)
+        {
+            return await ExecuteWithRetry(async () =>
+            {
+                try
+                {
+                    var response = await _httpClient.GetAsync(endpoint);
+                    
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        OnUnauthorized?.Invoke();
+                        return null;
+                    }
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                         return await response.Content.ReadAsByteArrayAsync();
+                    }
+                    
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    LogError($"GET FILE {endpoint}", ex);
+                    return null;
+                }
+            });
+        }
+
         private async Task<T?> HandleResponse<T>(HttpResponseMessage response) where T : class
         {
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 OnUnauthorized?.Invoke();
-                return default;
+                throw new ApiException("Unauthorized access", response.StatusCode, string.Empty);
             }
+
+            var content = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-                var json = await response.Content.ReadAsStringAsync();
-                Debug.WriteLine($"[ApiClient Response] {json.Substring(0, Math.Min(500, json.Length))}...");
-                return JsonConvert.DeserializeObject<T>(json);
+                Debug.WriteLine($"[ApiClient Response] {content.Substring(0, Math.Min(500, content.Length))}...");
+                return JsonConvert.DeserializeObject<T>(content);
             }
 
-            var errorContent = await response.Content.ReadAsStringAsync();
-            LogError($"Response error: {response.StatusCode} - {errorContent}", null);
-            return default;
+            LogError($"Response error: {response.StatusCode} - {content}", null);
+            throw new ApiException($"API Error: {response.StatusCode}", response.StatusCode, content);
         }
 
         private async Task<bool> HandleBoolResponse(HttpResponseMessage response)
@@ -165,13 +214,14 @@ namespace CarRentalSystem.BackOffice.Services
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 OnUnauthorized?.Invoke();
-                return false;
+                throw new ApiException("Unauthorized access", response.StatusCode, string.Empty);
             }
 
             if (!response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 LogError($"Response error: {response.StatusCode} - {content}", null);
+                throw new ApiException($"API Error: {response.StatusCode}", response.StatusCode, content);
             }
 
             return response.IsSuccessStatusCode;
@@ -252,9 +302,20 @@ namespace CarRentalSystem.BackOffice.Services
             return await PutAsync($"vehicles/{id}", request);
         }
 
+        public async Task<bool> UpdateVehicleStatusAsync(Guid id, string status)
+        {
+            var request = new UpdateVehicleStatusCommand { Id = id, Status = status };
+            return await PatchAsync($"vehicles/{id}/status", request);
+        }
+
         public async Task<bool> DeleteVehicleAsync(Guid id)
         {
             return await DeleteAsync($"vehicles/{id}");
+        }
+
+        public async Task<byte[]?> ExportVehiclesAsync()
+        {
+            return await GetFileAsync("exports/vehicles");
         }
 
         #endregion
@@ -304,6 +365,11 @@ namespace CarRentalSystem.BackOffice.Services
             return await GetAsync<ReservationDto>($"reservations/{id}");
         }
 
+        public async Task<GetReservationsByCustomerResponse?> GetReservationsByCustomerAsync(Guid customerId)
+        {
+            return await GetAsync<GetReservationsByCustomerResponse>($"reservations/customer/{customerId}?pageSize=1000");
+        }
+
         public async Task<bool> ConfirmReservationAsync(Guid id)
         {
             return await PostAsync($"reservations/{id}/confirm");
@@ -327,27 +393,12 @@ namespace CarRentalSystem.BackOffice.Services
 
         public async Task<byte[]?> DownloadReceiptAsync(Guid id)
         {
-            try
-            {
-                var response = await _httpClient.GetAsync($"reservations/{id}/receipt");
+            return await GetFileAsync($"reservations/{id}/receipt");
+        }
 
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    OnUnauthorized?.Invoke();
-                    return null;
-                }
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsByteArrayAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogError($"GET reservations/{id}/receipt", ex);
-            }
-
-            return null;
+        public async Task<byte[]?> ExportReservationsAsync()
+        {
+            return await GetFileAsync("exports/reservations");
         }
 
         #endregion
@@ -367,17 +418,53 @@ namespace CarRentalSystem.BackOffice.Services
         }
 
         #endregion
+
+        #region Employees (Admin only)
+
+        public async Task<List<EmployeeDto>> GetEmployeesAsync()
+        {
+            var response = await GetAsync<EmployeesPagedResponse>("employees?pageSize=1000");
+            return response?.Employees ?? new List<EmployeeDto>();
+        }
+
+        public async Task<EmployeeDto?> GetEmployeeByIdAsync(Guid id)
+        {
+            return await GetAsync<EmployeeDto>($"employees/{id}");
+        }
+
+        public async Task<EmployeeDto?> CreateEmployeeAsync(CreateEmployeeRequest request)
+        {
+            return await PostAsync<EmployeeDto>("employees", request);
+        }
+
+        public async Task<bool> UpdateEmployeeAsync(Guid id, UpdateEmployeeRequest request)
+        {
+            return await PutAsync($"employees/{id}", request);
+        }
+
+        public async Task<bool> DeleteEmployeeAsync(Guid id)
+        {
+            return await DeleteAsync($"employees/{id}");
+        }
+        
+        #endregion
+
+        #region Payments
+
+        public async Task<List<PaymentDto>> GetPaymentsAsync()
+        {
+            return await GetAsync<List<PaymentDto>>("payments") ?? new List<PaymentDto>();
+        }
+
+        public async Task<byte[]?> ExportPaymentsAsync(Guid? reservationId = null)
+        {
+             var endpoint = reservationId.HasValue 
+                 ? $"exports/payments?reservationId={reservationId}" 
+                 : "exports/payments";
+             return await GetFileAsync(endpoint);
+        }
+
+        #endregion
     }
 
-    #region Helper Response DTOs
-
-    /// <summary>
-    /// Response wrapper for single vehicle by ID
-    /// </summary>
-    internal class VehicleByIdResponse
-    {
-        public VehicleDto? Vehicle { get; set; }
-    }
-
-    #endregion
 }

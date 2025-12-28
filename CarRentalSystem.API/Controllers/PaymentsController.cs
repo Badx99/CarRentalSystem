@@ -22,6 +22,19 @@ public class PaymentsController : ControllerBase
     }
 
     /// <summary>
+    /// Get all payments
+    /// </summary>
+    [HttpGet]
+    [Authorize(Roles = "Administrator")]
+    [ProducesResponseType(typeof(IEnumerable<Application.Features.Payments.Queries.GetAllPayments.PaymentDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<Application.Features.Payments.Queries.GetAllPayments.PaymentDto>>> GetAll()
+    {
+        var query = new Application.Features.Payments.Queries.GetAllPayments.GetAllPaymentsQuery();
+        var response = await _mediator.Send(query);
+        return Ok(response);
+    }
+
+    /// <summary>
     /// Get a payment by ID
     /// </summary>
     [HttpGet("{id:guid}")]
@@ -65,7 +78,7 @@ public class PaymentsController : ControllerBase
     /// Create a new payment
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Administrator,Employee")]
+    [Authorize(Roles = "Administrator,Employee,Customer")]
     [ProducesResponseType(typeof(CreatePaymentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CreatePaymentResponse>> Create([FromBody] CreatePaymentCommand command)

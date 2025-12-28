@@ -84,6 +84,51 @@ public class ReservationsController : ControllerBase
     }
 
     /// <summary>
+    /// Download reservation receipt PDF
+    /// </summary>
+    [HttpGet("{id:guid}/receipt")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetReceipt(Guid id)
+    {
+        try
+        {
+            // 1. Verify existence and ownership
+            var reservationQuery = new GetReservationByIdQuery(id);
+            var reservation = await _mediator.Send(reservationQuery);
+
+            if (reservation == null)
+                return NotFound(new { error = "Reservation not found" });
+
+            // Ensure customer can only access their own receipt
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            
+            if (userRole == "Customer" && 
+                Guid.TryParse(userIdClaim, out var userId) && 
+                userId != reservation.CustomerId)
+            {
+                return Forbid();
+            }
+
+            // 2. Generate Receipt
+            var receiptQuery = new GenerateReservationReceiptQuery(id);
+            var result = await _mediator.Send(receiptQuery);
+
+            return File(result.PdfBytes, "application/pdf", result.FileName);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new { error = "An error occurred while generating the receipt." });
+        }
+    }
+
+    /// <summary>
     /// Get reservations by customer ID
     /// </summary>
     [HttpGet("customer/{customerId:guid}")]
@@ -109,6 +154,32 @@ public class ReservationsController : ControllerBase
         {
             return NotFound(new { error = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Get current customer's reservations
+    /// </summary>
+    [HttpGet("my-reservations")]
+    [Authorize(Roles = "Customer")]
+    [ProducesResponseType(typeof(GetReservationsByCustomerResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<GetReservationsByCustomerResponse>> GetMyReservations(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
+    {
+         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+         if (!Guid.TryParse(userIdClaim, out var userId))
+         {
+             return Unauthorized();
+         }
+
+         var query = new GetReservationsByCustomerQuery
+         {
+             CustomerId = userId,
+             Page = page,
+             PageSize = pageSize
+         };
+         var response = await _mediator.Send(query);
+         return Ok(response);
     }
 
     /// <summary>
@@ -311,27 +382,7 @@ public class ReservationsController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Download reservation receipt as PDF
-    /// </summary>
-    [HttpGet("{id}/receipt")]
-    [Authorize]
-    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DownloadReceipt(Guid id)
-    {
-        try
-        {
-            var query = new GenerateReservationReceiptQuery(id);
-            var result = await _mediator.Send(query);
 
-            return File(result.PdfBytes, "application/pdf", result.FileName);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { error = ex.Message });
-        }
-    }
 
     /// <summary>
     /// Search reservations with filters and pagination

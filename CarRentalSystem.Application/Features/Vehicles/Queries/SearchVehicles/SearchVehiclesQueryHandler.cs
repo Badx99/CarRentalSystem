@@ -23,7 +23,7 @@ namespace CarRentalSystem.Application.Features.Vehicles.Queries.SearchVehicles
             SearchVehiclesQuery request,
             CancellationToken cancellationToken)
         {
-            var vehicles = await _vehicleRepository.GetAllAsync(cancellationToken);
+            var vehicles = await _vehicleRepository.GetAllWithTypeAsync(cancellationToken);
             var query = vehicles.AsQueryable();
 
             // Apply filters
@@ -58,12 +58,12 @@ namespace CarRentalSystem.Application.Features.Vehicles.Queries.SearchVehicles
 
             if (request.MinDailyRate.HasValue)
             {
-                query = query.Where(v => v.DailyRate >= request.MinDailyRate.Value);
+                query = query.Where(v => v.GetEffectiveDailyRate() >= request.MinDailyRate.Value);
             }
 
             if (request.MaxDailyRate.HasValue)
             {
-                query = query.Where(v => v.DailyRate <= request.MaxDailyRate.Value);
+                query = query.Where(v => v.GetEffectiveDailyRate() <= request.MaxDailyRate.Value);
             }
 
             // Apply sorting
@@ -79,8 +79,8 @@ namespace CarRentalSystem.Application.Features.Vehicles.Queries.SearchVehicles
                     ? query.OrderByDescending(v => v.Year)
                     : query.OrderBy(v => v.Year),
                 "dailyrate" => request.SortDescending
-                    ? query.OrderByDescending(v => v.DailyRate)
-                    : query.OrderBy(v => v.DailyRate),
+                    ? query.OrderByDescending(v => v.GetEffectiveDailyRate())
+                    : query.OrderBy(v => v.GetEffectiveDailyRate()),
                 _ => query.OrderBy(v => v.Brand)
             };
 
@@ -101,7 +101,9 @@ namespace CarRentalSystem.Application.Features.Vehicles.Queries.SearchVehicles
                 Color = v.Color ?? "",
                 Status = v.Status.ToString() ?? "Unknown",
                 VehicleTypeName = v.VehicleType != null ? v.VehicleType.Name ?? "Unknown" : "Unknown",
-                DailyRate = v.DailyRate ?? 0,
+                DailyRate = v.GetEffectiveDailyRate(),
+                PassengerCapacity = v.VehicleType != null ? v.VehicleType.PassengerCapacity : 0,
+                Mileage = v.Mileage,
                 ImageUrl = v.ImageUrl ?? ""
             })
             .ToList();

@@ -1,4 +1,6 @@
 using CarRentalSystem.FrontOffice.Models.DTOs;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -39,6 +41,30 @@ namespace CarRentalSystem.FrontOffice.Services
 
             StoreToken(response.Token, response.ExpiresAt, response.UserId);
             _apiClient.SetAuthToken(response.Token);
+
+            // Sign in with ASP.NET Core Cookie Authentication for [Authorize] to work
+            if (HttpContext != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, response.UserId.ToString()),
+                    new Claim(ClaimTypes.Email, email),
+                    new Claim(ClaimTypes.Role, "Customer")
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = response.ExpiresAt
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+            }
+
             return true;
         }
 
@@ -54,15 +80,15 @@ namespace CarRentalSystem.FrontOffice.Services
         /// <summary>
         /// Clear authentication cookies and log out
         /// </summary>
-        public Task LogoutAsync()
+        public async Task LogoutAsync()
         {
             if (HttpContext != null)
             {
                 HttpContext.Response.Cookies.Delete(AuthCookieName);
                 HttpContext.Response.Cookies.Delete(UserIdCookieName);
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             }
             _apiClient.ClearAuthToken();
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -169,8 +195,8 @@ namespace CarRentalSystem.FrontOffice.Services
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true, // Use HTTPS
-                SameSite = SameSiteMode.Strict,
+                Secure = HttpContext.Request.IsHttps, // Only secure over HTTPS
+                SameSite = SameSiteMode.Lax,
                 Expires = expiresAt
             };
 

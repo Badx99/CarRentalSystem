@@ -1,121 +1,147 @@
-﻿// Car Rental System Client Logic
+﻿// Main JavaScript file for Car Rental Frontend
 
 $(document).ready(function () {
-    // 1. Initialize Date Pickers and Validation
-    initDateValidation();
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(function () {
+        $('.alert').fadeOut('slow', function () {
+            $(this).remove();
+        });
+    }, 5000);
 
-    // 2. Confirmation Dialogs
-    $('form[data-confirm], button[data-confirm]').on('click submit', function (e) {
-        var message = $(this).data('confirm') || 'Are you sure you want to proceed?';
-        if (!confirm(message)) {
-            e.preventDefault();
-            return false;
+    // Smooth scroll for anchor links
+    $('a[href^="#"]').on('click', function (event) {
+        var target = $(this.getAttribute('href'));
+        if (target.length) {
+            event.preventDefault();
+            $('html, body').stop().animate({
+                scrollTop: target.offset().top - 70
+            }, 1000);
         }
     });
 
-    // 3. Auto-dismiss Toast/Alerts
-    setTimeout(function () {
-        $('.alert-dismissible').fadeOut('slow');
-    }, 5000);
+    // Form validation enhancement
+    $('form').on('submit', function () {
+        var form = $(this);
+        if (form[0].checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.addClass('was-validated');
+    });
 
-    // 4. Smooth Scrolling
-    $('a[href^="#"]').on('click', function (e) {
-        var target = $(this.hash);
-        if (target.length) {
-            e.preventDefault();
-            $('html, body').animate({
-                scrollTop: target.offset().top - 70
-            }, 800);
+    // Date picker minimum date validation
+    $('input[type="date"]').on('change', function () {
+        var startDate = $('input[name="startDate"]');
+        var endDate = $('input[name="endDate"]');
+
+        if ($(this).attr('name') === 'startDate' && endDate.length) {
+            var minEndDate = new Date($(this).val());
+            minEndDate.setDate(minEndDate.getDate() + 1);
+            endDate.attr('min', minEndDate.toISOString().split('T')[0]);
+        }
+    });
+
+    // Loading spinner for form submissions
+    $('form').on('submit', function () {
+        var submitBtn = $(this).find('button[type="submit"]');
+        if (submitBtn.length) {
+            submitBtn.prop('disabled', true);
+            submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
+        }
+    });
+
+    // Image error handler
+    $('img').on('error', function () {
+        if (!$(this).hasClass('no-placeholder')) {
+            $(this).attr('src', '/images/placeholder-car.jpg');
         }
     });
 });
 
-// --- Availability Check Logic ---
-function initDateValidation() {
-    var startDateInput = document.getElementById('startDate');
-    var endDateInput = document.getElementById('endDate');
-
-    if (startDateInput && endDateInput) {
-        // Enforce min dates
-        var today = new Date().toISOString().split('T')[0];
-        if (!startDateInput.value) startDateInput.value = today;
-        startDateInput.setAttribute('min', today);
-        
-        // Update end date min when start date changes
-        startDateInput.addEventListener('change', function () {
-            endDateInput.setAttribute('min', this.value);
-            if (endDateInput.value && endDateInput.value <= this.value) {
-                // Determine next day
-                var start = new Date(this.value);
-                var nextDay = new Date(start);
-                nextDay.setDate(start.getDate() + 1);
-                endDateInput.value = nextDay.toISOString().split('T')[0];
-            }
-        });
+// Utility Functions
+function showLoading() {
+    if ($('#loadingOverlay').length === 0) {
+        $('body').append('<div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center" style="z-index: 9999;"><div class="spinner-border text-purple" role="status"><span class="visually-hidden">Loading...</span></div></div>');
     }
 }
 
-function checkAvailability() {
-    var vehicleId = $('#vehicleId').val();
-    var startDate = $('#startDate').val();
-    var endDate = $('#endDate').val();
-    var resultDiv = $('#availabilityResult');
-    var errorDiv = $('#availabilityError');
-    var bookBtn = $('#bookButton');
+function hideLoading() {
+    $('#loadingOverlay').remove();
+}
 
-    // Reset UI
-    resultDiv.addClass('d-none');
-    errorDiv.addClass('d-none');
-    
-    if (!startDate || !endDate) {
-        alert("Please select both start and end dates.");
-        return;
-    }
-
-    if (startDate >= endDate) {
-        alert("Return date must be after pick-up date.");
-        return;
-    }
-
-    // Show loading state
-    bookBtn.addClass('disabled').text('Checking...');
-
-    $.post('/Vehicles/CheckAvailability', {
-        vehicleId: vehicleId,
-        startDate: startDate,
-        endDate: endDate
-    })
-    .done(function (result) {
-        if (result.available) {
-            // Success
-            $('#resultDays').text(result.days + ' days');
-            $('#resultPrice').text('$' + result.totalPrice.toFixed(2));
-            
-            // Build booking URL with params
-            var baseUrl = '/Reservations/Book'; // Or use @Url.Action in view to set a data attribute
-            var bookingUrl = `${baseUrl}?vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}`;
-            
-            bookBtn.attr('href', bookingUrl)
-                   .removeClass('disabled btn-secondary')
-                   .addClass('btn-success')
-                   .text('Book Now');
-            
-            resultDiv.removeClass('d-none');
-        } else {
-            // Unavailable
-            errorDiv.text(result.message || "Vehicle is not available for these dates.")
-                    .removeClass('d-none');
-            bookBtn.addClass('disabled').text('Book Now');
-        }
-    })
-    .fail(function () {
-        errorDiv.text("Error checking availability. Please try again.").removeClass('d-none');
-        bookBtn.removeClass('disabled').text('Check Again');
-    })
-    .always(function() {
-        if($('#availabilityResult').hasClass('d-none')) {
-             // If failed or unavailable, ensure button resets text if not processed above
-             if(!errorDiv.hasClass('d-none')) bookBtn.text('Check Again');
-        }
+// Toast notification function
+function showToast(message, type = 'info') {
+    var bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
+    var toast = $('<div class="toast align-items-center text-white ' + bgColor + ' border-0 position-fixed top-0 end-0 m-3" role="alert" style="z-index: 9999;"><div class="d-flex"><div class="toast-body">' + message + '</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>');
+    $('body').append(toast);
+    var bsToast = new bootstrap.Toast(toast[0]);
+    bsToast.show();
+    toast.on('hidden.bs.toast', function () {
+        $(this).remove();
     });
+}
+
+// File download utility
+function downloadBlob(blob, filename) {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
+// Download PDF Receipt
+function downloadReceipt(reservationId) {
+    showLoading();
+    fetch(`/Reservations/DownloadReceipt/${reservationId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Receipt not available');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            hideLoading();
+            downloadBlob(blob, `Reservation_${reservationId}.pdf`);
+            showToast('Receipt downloaded successfully!', 'success');
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Download error:', error);
+            showToast('Failed to download receipt. Please try again.', 'error');
+        });
+}
+
+// Show QR Code Modal
+function showQRModal(qrCodeBase64, reservationId) {
+    // Remove existing modal if any
+    $('#qrModal').remove();
+
+    var modal = `
+        <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 bg-purple text-white rounded-top-4">
+                        <h5 class="modal-title"><i class="fas fa-qrcode me-2"></i>Check-in QR Code</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center p-4">
+                        <img src="data:image/png;base64,${qrCodeBase64}" alt="QR Code" class="img-fluid mb-3" style="max-width: 250px;">
+                        <p class="text-muted small">Present this QR code at the rental desk for quick check-in.</p>
+                        <p class="fw-bold">Reservation #${reservationId.substring(0, 8).toUpperCase()}</p>
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center">
+                        <button type="button" class="btn btn-outline-purple rounded-pill" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    $('body').append(modal);
+    var modalElement = new bootstrap.Modal(document.getElementById('qrModal'));
+    modalElement.show();
 }

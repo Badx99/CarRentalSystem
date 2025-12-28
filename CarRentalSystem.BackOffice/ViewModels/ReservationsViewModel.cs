@@ -24,6 +24,8 @@ namespace CarRentalSystem.BackOffice.ViewModels
         private string _statusFilter = "All";
         private bool _isLoading;
         private string _errorMessage = string.Empty;
+        private Guid? _customerIdFilter;
+        private string _customerNameFilter = string.Empty;
         #endregion
 
         #region Filter Options
@@ -45,6 +47,8 @@ namespace CarRentalSystem.BackOffice.ViewModels
             CompleteCommand = new RelayCommand(async res => await CompleteReservationAsync(res as ReservationDto), CanComplete);
             CancelCommand = new RelayCommand(async res => await CancelReservationAsync(res as ReservationDto), CanCancel);
             DownloadReceiptCommand = new RelayCommand(async res => await DownloadReceiptAsync(res as ReservationDto), CanDownloadReceipt);
+            ExportCommand = new RelayCommand(async _ => await ExportAsync());
+            ClearFilterCommand = new RelayCommand(_ => ClearFilter());
         }
 
         #region Public Properties
@@ -109,6 +113,27 @@ namespace CarRentalSystem.BackOffice.ViewModels
             set => SetProperty(ref _errorMessage, value);
         }
 
+        public Guid? CustomerIdFilter
+        {
+            get => _customerIdFilter;
+            set
+            {
+                if (SetProperty(ref _customerIdFilter, value))
+                {
+                    OnPropertyChanged(nameof(IsFilteredByCustomer));
+                    FilterReservations();
+                }
+            }
+        }
+
+        public string CustomerNameFilter
+        {
+            get => _customerNameFilter;
+            set => SetProperty(ref _customerNameFilter, value);
+        }
+
+        public bool IsFilteredByCustomer => CustomerIdFilter.HasValue;
+
         // Helper properties for UI visibility
         public bool HasSelection => SelectedReservation != null;
         public bool CanShowConfirm => SelectedReservation?.Status == "Pending";
@@ -128,7 +153,10 @@ namespace CarRentalSystem.BackOffice.ViewModels
         public ICommand StartRentalCommand { get; }
         public ICommand CompleteCommand { get; }
         public ICommand CancelCommand { get; }
+
         public ICommand DownloadReceiptCommand { get; }
+        public ICommand ExportCommand { get; }
+        public ICommand ClearFilterCommand { get; }
 
         #endregion
 
@@ -180,7 +208,34 @@ namespace CarRentalSystem.BackOffice.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                var reservations = await _apiClient.GetReservationsAsync();
+                List<ReservationDto> reservations;
+
+                if (CustomerIdFilter.HasValue)
+                {
+                    var response = await _apiClient.GetReservationsByCustomerAsync(CustomerIdFilter.Value);
+                    CustomerNameFilter = response?.CustomerName ?? "Customer";
+                    
+                    // Convert CustomerReservationDto to ReservationDto
+                    reservations = response?.Reservations.Select(r => new ReservationDto
+                    {
+                        Id = r.Id,
+                        VehicleId = r.VehicleId,
+                        VehicleBrand = r.VehicleInfo.Split(' ')[0], // Crude split, but better than nothing
+                        VehicleModel = r.VehicleInfo.Contains(' ') ? r.VehicleInfo.Substring(r.VehicleInfo.IndexOf(' ') + 1) : string.Empty,
+                        StartDate = r.StartDate,
+                        EndDate = r.EndDate,
+                        TotalAmount = r.TotalAmount,
+                        Status = r.Status,
+                        CustomerName = CustomerNameFilter,
+                        CustomerId = CustomerIdFilter.Value
+                    }).ToList() ?? new List<ReservationDto>();
+                }
+                else
+                {
+                    reservations = await _apiClient.GetReservationsAsync();
+                    CustomerNameFilter = string.Empty;
+                }
+
                 _allReservations = new ObservableCollection<ReservationDto>(reservations);
                 FilterReservations();
             }
@@ -220,6 +275,13 @@ namespace CarRentalSystem.BackOffice.ViewModels
             }
 
             Reservations = new ObservableCollection<ReservationDto>(filtered);
+        }
+
+        private void ClearFilter()
+        {
+            CustomerIdFilter = null;
+            CustomerNameFilter = string.Empty;
+            _ = LoadReservationsAsync();
         }
 
         #endregion
@@ -396,6 +458,43 @@ namespace CarRentalSystem.BackOffice.ViewModels
             catch (Exception ex)
             {
                 ShowError($"Error downloading receipt: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+
+
+        private async Task ExportAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                var fileBytes = await _apiClient.ExportReservationsAsync();
+                
+                if (fileBytes == null || fileBytes.Length == 0)
+                {
+                    ShowError("Failed to export reservations or no data available.");
+                    return;
+                }
+
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "Excel Files (*.xlsx)|*.xlsx|All files (*.*)|*.*",
+                    FileName = $"Reservations_{DateTime.Now:yyyyMMdd_HHmm}.xlsx"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    await File.WriteAllBytesAsync(saveFileDialog.FileName, fileBytes);
+                    ShowMessage("Reservations exported successfully!", "Export Complete");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Error exporting reservations: {ex.Message}");
             }
             finally
             {

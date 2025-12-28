@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1000">
     <Grid Margin="20">
@@ -38,7 +39,7 @@
                              Foreground="White" CaretBrush="LightGray"
                              BorderBrush="DarkGray" BorderThickness="0,0,0,2"
                              Height="35" Padding="10,8,40,0"
-                             VerticalContentAlignment="Center">
+                             VerticalContentAlignment="Center" Margin="0,0,-83,0">
                         <TextBox.Background>
                             <SolidColorBrush Color="#2A2A5A"/>
                         </TextBox.Background>
@@ -80,6 +81,23 @@
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter TargetName="border" Property="Background" Value="#1E9BD8"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button Content="📊 Export Excel" Command="{Binding ExportCommand}"
+                            Background="#DA34AE" Foreground="White" FontWeight="Bold"
+                            Padding="15,8" Margin="10,0,0,0" Cursor="Hand" BorderThickness="0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                        CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#C02E9B"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -144,20 +162,58 @@
                     <DataGridTextColumn Header="License Plate" Binding="{Binding LicensePlate}" Width="110"/>
                     <DataGridTextColumn Header="Color" Binding="{Binding Color}" Width="80"/>
                     <DataGridTextColumn Header="Type" Binding="{Binding VehicleTypeName}" Width="100"/>
-                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90"/>
-                    <DataGridTextColumn Header="Daily Rate" Binding="{Binding DailyRate, StringFormat=C2}" Width="90"/>
+                    <DataGridTemplateColumn Header="Status" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox ItemsSource="{Binding DataContext.VehicleStatuses, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                          SelectedItem="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
+                                          Background="Transparent" Foreground="White" BorderThickness="0">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                    <ComboBox.Style>
+                                        <Style TargetType="ComboBox">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="Available">
+                                                    <Setter Property="Background" Value="#32B743"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="Rented">
+                                                    <Setter Property="Background" Value="#DA34AE"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="Maintenance">
+                                                    <Setter Property="Background" Value="#FF8C00"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="OutofService">
+                                                    <Setter Property="Background" Value="#DA5234"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ComboBox.Style>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <i:InvokeCommandAction Command="{Binding DataContext.UpdateStatusCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                   CommandParameter="{Binding}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ComboBox>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Daily Rate" Binding="{Binding EffectiveDailyRate, StringFormat=C2}" Width="90"/>
                     <DataGridTemplateColumn Header="Actions" Width="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="✏️" 
                                             Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            Background="Yellow" Foreground="White" 
+                                            Background="Yellow" Foreground="Black" 
                                             BorderThickness="0" Cursor="Hand" Padding="8,4"
                                             ToolTip="Edit Vehicle" FontSize="16"/>
                                     <Button Content="🗑️" 
                                             Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            Background="Red" Foreground="White" 
+                                            Background="Red" Foreground="Black" 
                                             BorderThickness="0" Cursor="Hand" Padding="8,4"
                                             ToolTip="Delete Vehicle" FontSize="16"/>
                                 </StackPanel>
@@ -262,6 +318,15 @@
                               DisplayMemberPath="Name"
                               FontSize="13" Height="32" Margin="0,0,0,15"
                               Background="#1A1650" Foreground="White"/>
+
+                    <!-- Status -->
+                    <TextBlock Text="Status *" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"
+                               Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <ComboBox ItemsSource="{Binding VehicleStatuses}"
+                              SelectedItem="{Binding Status}"
+                              FontSize="13" Height="32" Margin="0,0,0,15"
+                              Background="#1A1650" Foreground="White"
+                              Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <!-- Image URL -->
                     <TextBlock Text="Image URL (optional)" Foreground="DarkGray" FontSize="12" Margin="0,0,0,5"/>

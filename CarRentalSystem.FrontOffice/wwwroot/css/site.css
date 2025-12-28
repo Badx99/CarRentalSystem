@@ -1,162 +1,319 @@
-/* Global Styles */
+/* Purple Theme Variables */
 :root {
-  --primary-color: #0d6efd;
-  --secondary-color: #6c757d;
-  --success-color: #198754;
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-  --info-color: #0dcaf0;
-  --light-bg: #f8f9fa;
-  --dark-text: #212529;
+  --primary-purple: #7C3AED;
+  --secondary-purple: #9333EA;
+  --light-purple: #A855F7;
+  --dark-purple: #6D28D9;
+  --accent-gold: #F59E0B;
+  --text-dark: #1F2937;
+  --text-light: #6B7280;
+  --bg-light: #F9FAFB;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--dark-text);
-  background-color: #fcfcfc;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-dark);
+  background-color: #ffffff;
+  line-height: 1.6;
 }
 
-main {
-  flex: 1;
+/* Purple Theme Classes */
+.bg-purple {
+  background-color: var(--primary-purple) !important;
+}
+
+.text-purple {
+  color: var(--primary-purple) !important;
+}
+
+.btn-purple {
+  background-color: var(--primary-purple);
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-purple:hover {
+  background-color: var(--dark-purple);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.btn-outline-purple {
+  border: 2px solid var(--primary-purple);
+  color: var(--primary-purple);
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-purple:hover {
+  background-color: var(--primary-purple);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-light-purple {
+  background-color: rgba(124, 58, 237, 0.1);
+  color: var(--primary-purple);
+  border: 1px solid var(--primary-purple);
+  transition: all 0.3s ease;
+}
+
+.btn-light-purple:hover {
+  background-color: var(--primary-purple);
+  color: white;
 }
 
 /* Navbar */
-.navbar {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+.navbar.bg-purple {
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--secondary-purple) 100%) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand {
   font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: 1.5rem;
 }
 
-/* Card Styling */
+.nav-link {
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+  transform: translateY(-2px);
+}
+
+/* Cards */
 .card {
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .card:hover {
-  /* Hover effect mainly for interactive cards like vehicles */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(124, 58, 237, 0.2) !important;
+}
+
+/* Vehicle Card */
 .vehicle-card {
-  cursor: pointer;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.vehicle-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.vehicle-card img {
-  height: 220px;
+.vehicle-image {
+  height: 200px;
   object-fit: cover;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  transition: transform 0.3s ease;
 }
 
-.vehicle-card .card-body {
-  padding: 1.25rem;
-}
-
-/* Typography & Badges */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: 600;
-  color: #333;
-}
-
-.badge {
-  font-weight: 500;
-  padding: 0.5em 0.8em;
-}
-
-/* Status Colors */
-.status-available {
-  color: var(--success-color);
-  font-weight: bold;
-}
-
-.status-rented {
-  color: var(--danger-color);
-}
-
-.status-pending {
-  border-left: 4px solid var(--warning-color);
-}
-
-.status-confirmed {
-  border-left: 4px solid var(--primary-color);
-}
-
-.status-active {
-  border-left: 4px solid var(--success-color);
-}
-
-.status-completed {
-  border-left: 4px solid var(--secondary-color);
-  opacity: 0.9;
-}
-
-.status-cancelled {
-  border-left: 4px solid var(--danger-color);
-  opacity: 0.8;
+.vehicle-card:hover .vehicle-image {
+  transform: scale(1.05);
 }
 
 /* Forms */
 .form-control:focus,
 .form-select:focus {
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
 }
 
-.form-floating>label {
-  color: #6c757d;
+.input-group-text.bg-purple {
+  background-color: var(--primary-purple) !important;
+  border-color: var(--primary-purple);
+}
+
+/* Badges */
+.badge.bg-purple {
+  background-color: var(--primary-purple) !important;
+}
+
+/* Footer */
+.footer-section {
+  background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+}
+
+.social-links a {
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.social-links a:hover {
+  color: var(--primary-purple) !important;
+  transform: translateY(-3px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-in;
+}
+
+/* Loading Spinner */
+.spinner-border-purple {
+  color: var(--primary-purple);
+}
+
+/* Alerts */
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+.alert-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border-left: 4px solid var(--success);
+}
+
+.alert-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border-left: 4px solid var(--danger);
+}
+
+.alert-info {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3B82F6;
+  border-left: 4px solid #3B82F6;
 }
 
 /* Buttons */
 .btn {
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 500;
-  padding: 0.5rem 1.25rem;
-  transition: all 0.2s;
+  padding: 0.6rem 1.5rem;
+  transition: all 0.3s ease;
 }
 
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+.btn-lg {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
 }
 
-.btn-primary:hover {
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
-  transform: translateY(-1px);
+/* Utilities */
+.shadow-purple {
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);
 }
 
-/* Footer */
-footer {
-  background-color: #f8f9fa;
-  padding: 2rem 0;
-  margin-top: auto;
-  border-top: 1px solid #e9ecef;
+.rounded-4 {
+  border-radius: 1rem !important;
 }
 
-/* Utility */
-.text-justify {
-  text-align: justify;
+/* Responsive */
+@media (max-width: 768px) {
+  .display-3 {
+    font-size: 2rem;
+  }
+
+  .display-4 {
+    font-size: 1.75rem;
+  }
+
+  .display-5 {
+    font-size: 1.5rem;
+  }
 }
 
-.object-fit-cover {
-  object-fit: cover;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-purple);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dark-purple);
+}
+
+/* Booking Card */
+.booking-card {
+  border-left: 4px solid var(--primary-purple);
+}
+
+/* Feature Icons */
+.feature-icon {
+  transition: transform 0.3s ease;
+}
+
+.feature-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Stat Cards */
+.stat-card {
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Smooth Transitions */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Focus States */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+}
+
+/* Print Styles */
+@media print {
+
+  .navbar,
+  .footer-section,
+  .btn {
+    display: none !important;
+  }
 }

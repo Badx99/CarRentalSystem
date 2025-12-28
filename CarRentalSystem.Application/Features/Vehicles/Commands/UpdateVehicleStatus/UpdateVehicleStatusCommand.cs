@@ -1,4 +1,3 @@
-using CarRentalSystem.Domain.Enums;
 using MediatR;
 
 namespace CarRentalSystem.Application.Features.Vehicles.Commands.UpdateVehicleStatus
@@ -6,7 +5,7 @@ namespace CarRentalSystem.Application.Features.Vehicles.Commands.UpdateVehicleSt
     public record UpdateVehicleStatusCommand : IRequest<UpdateVehicleStatusResponse>
     {
         public Guid Id { get; init; }
-        public VehicleStatus Status { get; init; }
+        public string Status { get; init; } = string.Empty;
     }
 
     public record UpdateVehicleStatusResponse

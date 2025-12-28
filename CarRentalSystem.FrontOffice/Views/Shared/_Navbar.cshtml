@@ -1,0 +1,72 @@
+@using CarRentalSystem.FrontOffice.Helpers
+<nav class="navbar navbar-expand-lg navbar-dark bg-purple shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+            <i class="fas fa-car me-2"></i>Luxury Car Rentals
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Vehicles" asp-action="Catalog">
+                        <i class="fas fa-car-side me-1"></i>Vehicles
+                    </a>
+                </li>
+                @if (Context.IsAuthenticated())
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Reservations" asp-action="MyReservations">
+                            <i class="fas fa-calendar-check me-1"></i>My Bookings
+                        </a>
+                    </li>
+                }
+            </ul>
+            <ul class="navbar-nav">
+                @if (Context.IsAuthenticated())
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>@(Context.Items["UserEmail"] ?? "Account")
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Auth" asp-action="Profile">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Auth" asp-action="Login">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-light-purple ms-2 px-3" asp-controller="Auth" asp-action="Register">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>

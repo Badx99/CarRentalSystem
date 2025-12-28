@@ -35,6 +35,8 @@ namespace CarRentalSystem.Application.Features.Vehicles.Queries.SearchVehicles
         public string Status { get; init; } = string.Empty;
         public string VehicleTypeName { get; init; } = string.Empty;
         public decimal DailyRate { get; init; }
+        public int PassengerCapacity { get; init; }
+        public int Mileage { get; init; }
         public string? ImageUrl { get; init; }
     }
 }

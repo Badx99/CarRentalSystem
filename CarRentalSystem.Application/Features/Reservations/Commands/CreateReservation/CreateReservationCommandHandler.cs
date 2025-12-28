@@ -1,3 +1,4 @@
+using CarRentalSystem.Application.Common.Interfaces;
 using CarRentalSystem.Domain.Entities;
 using CarRentalSystem.Domain.Interfaces;
 using MediatR;
@@ -9,15 +10,21 @@ namespace CarRentalSystem.Application.Features.Reservations.Commands.CreateReser
         private readonly IReservationRepository _reservationRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly IVehicleRepository _vehicleRepository;
+        private readonly IQRCodeService _qrCodeService;
+        private readonly IEmailService _emailService;
 
         public CreateReservationCommandHandler(
             IReservationRepository reservationRepository,
             ICustomerRepository customerRepository,
-            IVehicleRepository vehicleRepository)
+            IVehicleRepository vehicleRepository,
+            IQRCodeService qrCodeService,
+            IEmailService emailService)
         {
             _reservationRepository = reservationRepository;
             _customerRepository = customerRepository;
             _vehicleRepository = vehicleRepository;
+            _qrCodeService = qrCodeService;
+            _emailService = emailService;
         }
 
         public async Task<CreateReservationResponse> Handle(
@@ -69,7 +76,30 @@ namespace CarRentalSystem.Application.Features.Reservations.Commands.CreateReser
                 notes: request.Notes
             );
 
+            // Generate QR Code with reservation details
+            var qrContent = reservation.Id.ToString();
+            var qrCodeBase64 = _qrCodeService.GenerateQRCode(qrContent);
+            reservation.SetQRCode(qrCodeBase64);
+
             await _reservationRepository.AddAsync(reservation, cancellationToken);
+
+            // Send confirmation email
+            var vehicleInfo = $"{vehicle.Brand} {vehicle.Model} ({vehicle.LicensePlate})";
+            try
+            {
+                await _emailService.SendReservationConfirmationEmailAsync(
+                    customer.Email,
+                    customer.FullName,
+                    reservation.Id,
+                    reservation.StartDate,
+                    reservation.EndDate,
+                    vehicleInfo,
+                    cancellationToken);
+            }
+            catch (Exception)
+            {
+                // Log but don't fail the reservation if email fails
+            }
 
             return new CreateReservationResponse
             {
@@ -77,15 +107,17 @@ namespace CarRentalSystem.Application.Features.Reservations.Commands.CreateReser
                 CustomerId = reservation.CustomerId,
                 CustomerName = customer.FullName,
                 VehicleId = reservation.VehicleId,
-                VehicleInfo = $"{vehicle.Brand} {vehicle.Model} ({vehicle.LicensePlate})",
+                VehicleInfo = vehicleInfo,
                 StartDate = reservation.StartDate,
                 EndDate = reservation.EndDate,
                 RentalDays = reservation.GetRentalDays(),
                 TotalAmount = reservation.TotalAmount,
                 Status = reservation.Status.ToString(),
+                QRCode = qrCodeBase64,
                 Message = "Reservation created successfully. Awaiting confirmation.",
                 CreatedAt = reservation.CreatedAt
             };
         }
     }
 }
+

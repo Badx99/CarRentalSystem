@@ -115,12 +115,32 @@ namespace CarRentalSystem.FrontOffice.Controllers
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var user = await _apiClient.GetCurrentUserAsync();
-            if (user == null)
+            var profile = await _apiClient.GetCustomerProfileAsync();
+            if (profile == null)
             {
                 return RedirectToAction("Login");
             }
-            return View(user);
+            return View(profile);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile(CustomerDetailsDto model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var success = await _apiClient.UpdateCustomerProfileAsync(model);
+
+            if (success)
+            {
+                TempData["Success"] = "Profile updated successfully!";
+                return RedirectToAction("Profile");
+            }
+
+            TempData["Error"] = "Failed to update profile. Please try again.";
+            return View(model);
         }
         [HttpGet]
         public IActionResult AccessDenied()

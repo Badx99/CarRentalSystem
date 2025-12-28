@@ -47,6 +47,7 @@ namespace CarRentalSystem.Application.Features.Reservations.Queries.GetAllReserv
                     RentalDays = r.GetRentalDays(),
                     TotalAmount = r.TotalAmount,
                     Status = r.Status.ToString(),
+                    PaymentStatus = r.IsFullyPaid() ? "Paid" : (r.Payments.Any() ? "Partial" : "Pending"),
                     CreatedAt = r.CreatedAt
                 });
 

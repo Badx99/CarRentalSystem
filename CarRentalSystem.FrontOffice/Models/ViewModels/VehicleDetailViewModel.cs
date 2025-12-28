@@ -17,7 +17,7 @@ namespace CarRentalSystem.FrontOffice.Models.ViewModels
             if (StartDate.HasValue && EndDate.HasValue && EndDate > StartDate)
             {
                 RentalDays = (EndDate.Value - StartDate.Value).Days;
-                TotalPrice = RentalDays * Vehicle.DailyRate;
+                TotalPrice = RentalDays * Vehicle.EffectiveDailyRate;
             }
         }
     }

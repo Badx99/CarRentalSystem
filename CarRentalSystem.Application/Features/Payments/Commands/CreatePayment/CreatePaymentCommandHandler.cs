@@ -47,6 +47,13 @@ namespace CarRentalSystem.Application.Features.Payments.Commands.CreatePayment
             //UPDATE REMAINING BALANCE
             var updatedRemainingBalance = remainingBalance - payment.Amount;
 
+            // Confirm reservation if fully paid
+            if (updatedRemainingBalance <= 0 && reservation.Status == Domain.Enums.ReservationStatus.Pending)
+            {
+                reservation.Confirm();
+                await _reservationRepository.UpdateAsync(reservation, cancellationToken);
+            }
+
             return new CreatePaymentResponse
             {
                 Id = payment.Id,

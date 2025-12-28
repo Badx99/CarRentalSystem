@@ -23,6 +23,9 @@ namespace CarRentalSystem.BackOffice.ViewModels
         private string _errorMessage = string.Empty;
         #endregion
 
+        public event Action<Guid>? RequestViewReservations;
+
+
         public CustomersViewModel(IApiClient apiClient)
         {
             _apiClient = apiClient;
@@ -139,9 +142,7 @@ namespace CarRentalSystem.BackOffice.ViewModels
         private void ViewCustomerReservations()
         {
             if (SelectedCustomer == null) return;
-
-            // This would typically navigate to the Reservations view filtered by customer
-            ShowMessage($"View reservations for {SelectedCustomer.FullName}\n\nThis feature would navigate to the Reservations tab with the customer filter applied.", "Customer Reservations");
+            RequestViewReservations?.Invoke(SelectedCustomer.Id);
         }
 
         #endregion

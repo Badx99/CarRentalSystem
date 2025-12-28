@@ -12,6 +12,8 @@ namespace CarRentalSystem.BackOffice.ViewModels
         private readonly ReservationsViewModel _reservationsViewModel;
         private readonly CustomersViewModel _customersViewModel;
         private readonly VehicleTypesViewModel _vehicleTypesViewModel;
+        private readonly EmployeesViewModel _employeesViewModel;
+        private readonly PaymentsViewModel _paymentsViewModel;
 
         private BaseViewModel _currentViewModel;
         private string _currentViewName = "Dashboard";
@@ -22,7 +24,9 @@ namespace CarRentalSystem.BackOffice.ViewModels
             VehiclesViewModel vehiclesViewModel,
             ReservationsViewModel reservationsViewModel,
             CustomersViewModel customersViewModel,
-            VehicleTypesViewModel vehicleTypesViewModel)
+            VehicleTypesViewModel vehicleTypesViewModel,
+            EmployeesViewModel employeesViewModel,
+            PaymentsViewModel paymentsViewModel)
         {
             _userSession = userSession;
             _dashboardViewModel = dashboardViewModel;
@@ -30,6 +34,8 @@ namespace CarRentalSystem.BackOffice.ViewModels
             _reservationsViewModel = reservationsViewModel;
             _customersViewModel = customersViewModel;
             _vehicleTypesViewModel = vehicleTypesViewModel;
+            _employeesViewModel = employeesViewModel;
+            _paymentsViewModel = paymentsViewModel;
 
             _currentViewModel = _dashboardViewModel;
 
@@ -39,7 +45,18 @@ namespace CarRentalSystem.BackOffice.ViewModels
             NavigateToReservationsCommand = new RelayCommand(_ => NavigateTo("Reservations"));
             NavigateToCustomersCommand = new RelayCommand(_ => NavigateTo("Customers"));
             NavigateToVehicleTypesCommand = new RelayCommand(_ => NavigateTo("VehicleTypes"));
+            NavigateToEmployeesCommand = new RelayCommand(_ => NavigateTo("Employees"));
+            NavigateToPaymentsCommand = new RelayCommand(_ => NavigateTo("Payments"));
             LogoutCommand = new RelayCommand(_ => Logout());
+
+            // Subscribe to navigation events
+            _customersViewModel.RequestViewReservations += NavigateToCustomerReservations;
+        }
+
+        private void NavigateToCustomerReservations(Guid customerId)
+        {
+            _reservationsViewModel.CustomerIdFilter = customerId;
+            NavigateTo("Reservations");
         }
 
         public BaseViewModel CurrentViewModel
@@ -65,6 +82,8 @@ namespace CarRentalSystem.BackOffice.ViewModels
         public ICommand NavigateToReservationsCommand { get; }
         public ICommand NavigateToCustomersCommand { get; }
         public ICommand NavigateToVehicleTypesCommand { get; }
+        public ICommand NavigateToEmployeesCommand { get; }
+        public ICommand NavigateToPaymentsCommand { get; }
         public ICommand LogoutCommand { get; }
 
         private void NavigateTo(string viewName)
@@ -78,6 +97,8 @@ namespace CarRentalSystem.BackOffice.ViewModels
                 "Reservations" => _reservationsViewModel,
                 "Customers" => _customersViewModel,
                 "VehicleTypes" => _vehicleTypesViewModel,
+                "Employees" => _employeesViewModel,
+                "Payments" => _paymentsViewModel,
                 _ => _dashboardViewModel
             };
 
@@ -106,6 +127,14 @@ namespace CarRentalSystem.BackOffice.ViewModels
             else if (CurrentViewModel is VehicleTypesViewModel vehicleTypes)
             {
                 await vehicleTypes.LoadVehicleTypesAsync();
+            }
+            else if (CurrentViewModel is EmployeesViewModel employees)
+            {
+                await employees.LoadEmployeesAsync();
+            }
+            else if (CurrentViewModel is PaymentsViewModel payments)
+            {
+                await payments.LoadPaymentsAsync();
             }
         }
 

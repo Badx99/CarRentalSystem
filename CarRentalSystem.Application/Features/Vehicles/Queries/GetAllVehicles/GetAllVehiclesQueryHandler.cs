@@ -47,8 +47,10 @@ namespace CarRentalSystem.Application.Features.Vehicles.Queries.GetAllVehicles
                     Color = v.Color,
                     Mileage = v.Mileage,
                     Status = v.Status.ToString(),
+                    DailyRate = v.DailyRate,
                     EffectiveDailyRate = v.GetEffectiveDailyRate(),
                     ImageUrl = v.ImageUrl,
+                    VehicleTypeId = v.VehicleTypeId,
                     VehicleTypeName = v.VehicleType?.Name ?? string.Empty,
                     CreatedAt = v.CreatedAt
                 });

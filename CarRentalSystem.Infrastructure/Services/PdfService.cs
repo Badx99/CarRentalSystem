@@ -239,7 +239,7 @@ namespace CarRentalSystem.Infrastructure.Services
             return memoryStream.ToArray();
         }
 
-        private void AddTableRow(Table table, string label, string value)
+        private static void AddTableRow(Table table, string label, string value)
         {
             var boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
             

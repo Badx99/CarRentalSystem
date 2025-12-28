@@ -20,6 +20,11 @@ namespace CarRentalSystem.BackOffice.Helpers
             remove => CommandManager.RequerySuggested -= value;
         }
 
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
+
         public bool CanExecute(object? parameter) => _canExecute == null || _canExecute(parameter);
 
         public void Execute(object? parameter) => _execute(parameter);

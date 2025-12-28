@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CarRentalSystem.FrontOffice.Controllers
 {
     
+    [Authorize]
     public class ReservationsController : Controller
     {
         private readonly ApiClient _apiClient;
@@ -17,10 +18,15 @@ namespace CarRentalSystem.FrontOffice.Controllers
             _apiClient = apiClient;
         }
 
-        public async Task<IActionResult> MyReservations()
+        public async Task<IActionResult> MyReservations(string? status, DateTime? dateFrom, DateTime? dateTo)
         {
             var reservations = await _apiClient.GetMyReservationsAsync();
-            var viewModel = new MyReservationsViewModel();
+            var viewModel = new MyReservationsViewModel
+            {
+                StatusFilter = status,
+                DateFrom = dateFrom,
+                DateTo = dateTo
+            };
             viewModel.SortReservations(reservations);
             return View(viewModel);
         }
@@ -66,7 +72,7 @@ namespace CarRentalSystem.FrontOffice.Controllers
                 LicensePlate = vehicleResponse.LicensePlate,
                 Color = vehicleResponse.Color,
                 VehicleTypeName = vehicleResponse.VehicleTypeName,
-                DailyRate = vehicleResponse.DailyRate ?? 0,
+                DailyRate = vehicleResponse.EffectiveDailyRate,
                 ImageUrl = vehicleResponse.ImageUrl,
                 PassengerCapacity = vehicleResponse.PassengerCapacity,
                 Mileage = vehicleResponse.Mileage
@@ -97,7 +103,6 @@ namespace CarRentalSystem.FrontOffice.Controllers
 
             return View(viewModel);
         }
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Book(BookingViewModel model)
@@ -119,7 +124,7 @@ namespace CarRentalSystem.FrontOffice.Controllers
                 LicensePlate = vehicleResponse.LicensePlate,
                 Color = vehicleResponse.Color,
                 VehicleTypeName = vehicleResponse.VehicleTypeName,
-                DailyRate = vehicleResponse.DailyRate ?? 0,
+                DailyRate = vehicleResponse.EffectiveDailyRate,
                 ImageUrl = vehicleResponse.ImageUrl,
                 PassengerCapacity = vehicleResponse.PassengerCapacity,
                 Mileage = vehicleResponse.Mileage,
@@ -149,11 +154,79 @@ namespace CarRentalSystem.FrontOffice.Controllers
 
             if (response != null)
             {
-                return RedirectToAction("Confirmation", new { id = response.Id });
+                // Redirect to Checkout for payment
+                return RedirectToAction("Checkout", new { id = response.Id });
             }
 
             ModelState.AddModelError("", "Failed to create reservation. The vehicle might be booked or an error occurred.");
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Checkout(Guid id)
+        {
+            var reservation = await _apiClient.GetReservationByIdAsync(id);
+            if (reservation == null)
+                return NotFound();
+
+            var currentUserId = HttpContext.GetCurrentUserId();
+            if (reservation.CustomerId != currentUserId)
+                return Forbid();
+
+            // Only allow checkout for Pending reservations
+            if (reservation.Status != "Pending")
+            {
+                TempData["Error"] = "This reservation is already processed.";
+                return RedirectToAction("Details", new { id });
+            }
+
+            var viewModel = new CheckoutViewModel
+            {
+                ReservationId = reservation.Id,
+                VehicleInfo = $"{reservation.VehicleBrand} {reservation.VehicleModel}",
+                VehicleImageUrl = reservation.VehicleImageUrl ?? "",
+                StartDate = reservation.StartDate,
+                EndDate = reservation.EndDate,
+                RentalDays = (int)(reservation.EndDate - reservation.StartDate).TotalDays,
+                TotalAmount = reservation.TotalAmount,
+                CustomerName = reservation.CustomerName ?? ""
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcessPayment(CheckoutViewModel model)
+        {
+            var reservation = await _apiClient.GetReservationByIdAsync(model.ReservationId);
+            if (reservation == null)
+                return NotFound();
+
+            var currentUserId = HttpContext.GetCurrentUserId();
+            if (reservation.CustomerId != currentUserId)
+                return Forbid();
+
+            // Create payment
+            var paymentRequest = new CreatePaymentRequest
+            {
+                ReservationId = model.ReservationId,
+                Amount = model.TotalAmount,
+                Method = model.PaymentMethod,
+                TransactionReference = model.TransactionReference,
+                Notes = model.Notes
+            };
+
+            var paymentResponse = await _apiClient.CreatePaymentAsync(paymentRequest);
+            if (paymentResponse == null)
+            {
+                TempData["Error"] = "Payment processing failed. Please try again.";
+                return RedirectToAction("Checkout", new { id = model.ReservationId });
+            }
+
+            // Payment successful - redirect to confirmation
+            TempData["Success"] = "Payment successful! Your booking is confirmed.";
+            return RedirectToAction("Confirmation", new { id = model.ReservationId });
         }
 
         public async Task<IActionResult> Confirmation(Guid id)
@@ -214,3 +287,4 @@ namespace CarRentalSystem.FrontOffice.Controllers
         }
     }
 }
+

@@ -39,6 +39,11 @@ namespace CarRentalSystem.Application.Features.Reservations.Queries.GetReservati
                 {
                     Id = r.Id,
                     VehicleId = r.VehicleId,
+                    VehicleBrand = r.Vehicle?.Brand ?? string.Empty,
+                    VehicleModel = r.Vehicle?.Model ?? string.Empty,
+                    VehicleLicensePlate = r.Vehicle?.LicensePlate ?? string.Empty,
+                    VehicleTypeName = r.Vehicle?.VehicleType?.Name ?? string.Empty,
+                    VehicleImageUrl = r.Vehicle?.ImageUrl,
                     VehicleInfo = r.Vehicle != null 
                         ? $"{r.Vehicle.Brand} {r.Vehicle.Model} ({r.Vehicle.LicensePlate})" 
                         : string.Empty,
@@ -47,6 +52,7 @@ namespace CarRentalSystem.Application.Features.Reservations.Queries.GetReservati
                     RentalDays = r.GetRentalDays(),
                     TotalAmount = r.TotalAmount,
                     Status = r.Status.ToString(),
+                    QRCode = r.QRCode,
                     CreatedAt = r.CreatedAt
                 });
 

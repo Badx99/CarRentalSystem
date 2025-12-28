@@ -152,12 +152,12 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="✏️" 
                                             Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            Background="Transparent" Foreground="White" 
+                                            Background="Yellow" Foreground="Black" 
                                             BorderThickness="0" Cursor="Hand" Padding="8,4"
                                             ToolTip="Edit" FontSize="16"/>
                                     <Button Content="🗑️" 
                                             Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            Background="Transparent" Foreground="White" 
+                                            Background="Red" Foreground="Black" 
                                             BorderThickness="0" Cursor="Hand" Padding="8,4"
                                             ToolTip="Delete" FontSize="16"/>
                                 </StackPanel>

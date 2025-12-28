@@ -20,14 +20,37 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <TextBlock Grid.Row="0" Text="Reservation Management" 
-                       FontSize="28" FontWeight="Bold" 
-                       Foreground="#C5CE18" Margin="0,0,0,20"/>
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock Text="Reservation Management" 
+                           FontSize="28" FontWeight="Bold" 
+                           Foreground="#C5CE18"/>
+                
+                <!-- Filter Info -->
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0"
+                            Visibility="{Binding IsFilteredByCustomer, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Border Background="#1A1650" CornerRadius="4" Padding="8,4">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="👤 Showing results for: " Foreground="#AAA" FontSize="12"/>
+                            <TextBlock Text="{Binding CustomerNameFilter}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            <Button Command="{Binding ClearFilterCommand}" 
+                                    Margin="10,0,0,0" Background="Transparent" BorderThickness="0" 
+                                    Foreground="#28AEED" Cursor="Hand" VerticalAlignment="Center">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <TextBlock Text="[Clear Filter]" TextDecorations="Underline"/>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
 
             <!-- Toolbar -->
             <Grid Grid.Row="1" Margin="0,0,0,15">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -72,6 +95,23 @@
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="border" Property="Background" Value="#1E9BD8"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Grid.Column="3" Content="📊 Export Excel" Command="{Binding ExportCommand}"
+                        Background="#DA34AE" Foreground="White" FontWeight="Bold"
+                        Padding="15,8" Margin="10,0,0,0" Cursor="Hand" BorderThickness="0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                    CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#C02E9B"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -171,6 +211,31 @@
                                         </Style>
                                     </Border.Style>
                                     <TextBlock Text="{Binding Status}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Payment" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="3" Padding="6,2" HorizontalAlignment="Left">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#666"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding PaymentStatus}" Value="Paid">
+                                                    <Setter Property="Background" Value="#32B743"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding PaymentStatus}" Value="Partial">
+                                                    <Setter Property="Background" Value="#B4C821"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding PaymentStatus}" Value="Pending">
+                                                    <Setter Property="Background" Value="#FF8C00"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding PaymentStatus}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
                                 </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

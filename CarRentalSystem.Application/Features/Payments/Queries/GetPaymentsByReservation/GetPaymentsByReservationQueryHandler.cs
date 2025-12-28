@@ -1,3 +1,4 @@
+using CarRentalSystem.Application.Features.Payments.Queries.GetAllPayments;
 using CarRentalSystem.Domain.Enums;
 using CarRentalSystem.Domain.Interfaces;
 using MediatR;

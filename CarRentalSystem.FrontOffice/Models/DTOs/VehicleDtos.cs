@@ -11,6 +11,7 @@ namespace CarRentalSystem.FrontOffice.Models.DTOs
         public string Status { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
         public string VehicleTypeName { get; set; } = string.Empty;
+        [System.Text.Json.Serialization.JsonPropertyName("effectiveDailyRate")]
         public decimal DailyRate { get; set; }
         public int PassengerCapacity { get; set; }
         public int Mileage { get; set; }
@@ -29,6 +30,8 @@ namespace CarRentalSystem.FrontOffice.Models.DTOs
         public Guid? VehicleTypeId { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public string? Status { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 12;

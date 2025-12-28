@@ -1,0 +1,188 @@
+@using CarRentalSystem.FrontOffice.Models.ViewModels
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Complete Payment";
+}
+
+<div class="bg-purple text-light py-5 mb-5 shadow-sm">
+    <div class="container text-center animate-fade-in">
+        <h1 class="display-4 fw-bold mb-3"><i class="fas fa-credit-card me-3 text-white"></i>Complete Your Payment</h1>
+        <p class="lead mb-0">Just one more step to confirm your premium journey</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-8">
+            <div class="row g-4">
+                <!-- Order Summary -->
+                <div class="col-md-5">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style="top: 100px;">
+                        <div class="bg-light p-3">
+                            <h5 class="fw-bold mb-0"><i class="fas fa-receipt me-2 text-purple"></i>Order Summary</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="text-center mb-4">
+                                <img src="@(string.IsNullOrEmpty(Model.VehicleImageUrl) ? "/images/placeholder-car.jpg" : Model.VehicleImageUrl)" 
+                                     class="img-fluid rounded-4 shadow-sm" alt="Vehicle" style="max-height: 150px;" 
+                                     onerror="this.src='/images/placeholder-car.jpg'">
+                            </div>
+                            
+                            <h5 class="fw-bold text-center mb-4">@Model.VehicleInfo</h5>
+                            
+                            <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3 mb-3">
+                                <div class="text-center">
+                                    <small class="text-muted d-block fw-bold">PICK-UP</small>
+                                    <span class="fw-bold">@Model.StartDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                                <i class="fas fa-long-arrow-alt-right text-purple"></i>
+                                <div class="text-center">
+                                    <small class="text-muted d-block fw-bold">RETURN</small>
+                                    <span class="fw-bold">@Model.EndDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Rental Duration</span>
+                                <span class="fw-bold">@Model.RentalDays days</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Daily Rate</span>
+                                <span class="fw-bold">$@((Model.TotalAmount / Model.RentalDays).ToString("N2"))</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Subtotal</span>
+                                <span class="fw-bold">$@Model.TotalAmount.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Taxes & Fees</span>
+                                <span class="text-success fw-bold">Included</span>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fs-5 fw-bold">Total</span>
+                                <span class="fs-3 fw-bold text-purple">$@Model.TotalAmount.ToString("N2")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Form -->
+                <div class="col-md-7">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4 p-lg-5">
+                            <h4 class="fw-bold mb-4"><i class="fas fa-lock text-purple me-2"></i>Secure Payment</h4>
+                            
+                            <form asp-action="ProcessPayment" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="ReservationId" />
+                                <input type="hidden" asp-for="TotalAmount" />
+                                <input type="hidden" asp-for="VehicleInfo" />
+                                <input type="hidden" asp-for="VehicleImageUrl" />
+                                <input type="hidden" asp-for="StartDate" />
+                                <input type="hidden" asp-for="EndDate" />
+                                <input type="hidden" asp-for="RentalDays" />
+                                <input type="hidden" asp-for="CustomerName" />
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-uppercase">Select Payment Method</label>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <input type="radio" class="btn-check" name="PaymentMethod" id="card" value="2" checked>
+                                            <label class="btn btn-outline-purple w-100 py-3 rounded-3" for="card">
+                                                <i class="fas fa-credit-card fa-2x mb-2 d-block"></i>
+                                                Credit Card
+                                            </label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="radio" class="btn-check" name="PaymentMethod" id="debit" value="3">
+                                            <label class="btn btn-outline-purple w-100 py-3 rounded-3" for="debit">
+                                                <i class="fas fa-credit-card fa-2x mb-2 d-block"></i>
+                                                Debit Card
+                                            </label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="radio" class="btn-check" name="PaymentMethod" id="bank" value="4">
+                                            <label class="btn btn-outline-purple w-100 py-3 rounded-3" for="bank">
+                                                <i class="fas fa-university fa-2x mb-2 d-block"></i>
+                                                Bank Transfer
+                                            </label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="radio" class="btn-check" name="PaymentMethod" id="cash" value="1">
+                                            <label class="btn btn-outline-purple w-100 py-3 rounded-3" for="cash">
+                                                <i class="fas fa-money-bill-wave fa-2x mb-2 d-block"></i>
+                                                Pay at Counter
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4" id="cardDetails">
+                                    <label class="form-label fw-bold small text-uppercase">Card Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fas fa-credit-card text-muted"></i></span>
+                                        <input type="text" class="form-control border-0 bg-light py-3" placeholder="1234 5678 9012 3456" maxlength="19">
+                                    </div>
+                                    
+                                    <div class="row g-3 mt-2">
+                                        <div class="col-6">
+                                            <label class="form-label fw-bold small text-uppercase">Expiry Date</label>
+                                            <input type="text" class="form-control border-0 bg-light py-3" placeholder="MM/YY" maxlength="5">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-bold small text-uppercase">CVV</label>
+                                            <input type="text" class="form-control border-0 bg-light py-3" placeholder="123" maxlength="4">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="TransactionReference" class="form-label fw-bold small text-uppercase">Reference (Optional)</label>
+                                    <input asp-for="TransactionReference" class="form-control border-0 bg-light py-3" placeholder="Payment reference or order ID">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label asp-for="Notes" class="form-label fw-bold small text-uppercase">Additional Notes</label>
+                                    <textarea asp-for="Notes" class="form-control border-0 bg-light py-3" rows="2" placeholder="Any special requests..."></textarea>
+                                </div>
+
+                                <div class="alert alert-info border-0 rounded-3 small mb-4">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Your payment information is secured with 256-bit SSL encryption.
+                                </div>
+
+                                <button type="submit" class="btn btn-purple btn-lg w-100 py-3 shadow-purple rounded-pill">
+                                    <i class="fas fa-lock me-2"></i>Complete Payment - $@Model.TotalAmount.ToString("N2")
+                                </button>
+
+                                <div class="text-center mt-4">
+                                    <a asp-action="Details" asp-route-id="@Model.ReservationId" class="text-muted text-decoration-none small">
+                                        <i class="fas fa-arrow-left me-1"></i>Cancel and return
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle card details visibility based on payment method
+        $('input[name="PaymentMethod"]').on('change', function() {
+            if ($(this).val() === '1' || $(this).val() === '4') {
+                $('#cardDetails').slideUp();
+            } else {
+                $('#cardDetails').slideDown();
+            }
+        });
+    </script>
+}

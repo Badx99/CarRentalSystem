@@ -91,12 +91,11 @@ namespace CarRentalSystem.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)");
 
                     b.Property<string>("QRCode")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("date");

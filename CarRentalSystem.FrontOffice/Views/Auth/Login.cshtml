@@ -1,38 +1,66 @@
 @using CarRentalSystem.FrontOffice.Models.ViewModels
 @model LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Welcome Back";
+    Layout = "_Layout";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h2 class="text-center mb-4">Login</h2>
-                
-                <form asp-action="Login" method="post">
-                    @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
-                    
-                    <div class="form-floating mb-3">
-                        <input asp-for="Email" class="form-control" placeholder="name@example.com" />
-                        <label asp-for="Email">Email address</label>
-                        <span asp-validation-for="Email" class="text-danger"></span>
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="text-center mb-5 animate-fade-in">
+                    <div class="mb-4">
+                        <i class="fas fa-car-side fa-3x text-purple"></i>
                     </div>
-                    
-                    <div class="form-floating mb-3">
-                        <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
-                        <label asp-for="Password">Password</label>
-                        <span asp-validation-for="Password" class="text-danger"></span>
+                    <h1 class="display-6 fw-bold">Welcome Back</h1>
+                    <p class="text-muted">Sign in to continue your journey</p>
+                </div>
+
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate-fade-in">
+                    <div class="card-body p-4 p-lg-5">
+                        <form asp-action="Login" method="post" id="loginForm">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4" role="alert"></div>
+                            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+
+                            <div class="mb-4">
+                                <label asp-for="Email" class="form-label fw-bold small text-uppercase">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-envelope text-muted"></i></span>
+                                    <input asp-for="Email" class="form-control border-0 bg-light py-3" placeholder="you@example.com" />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label asp-for="Password" class="form-label fw-bold small text-uppercase mb-0">Password</label>
+                                    <a href="#" class="text-purple small text-decoration-none">Forgot?</a>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-lock text-muted"></i></span>
+                                    <input asp-for="Password" type="password" class="form-control border-0 bg-light py-3" placeholder="••••••••" />
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-purple w-100 btn-lg py-3 mb-4 shadow-purple rounded-pill">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </button>
+
+                            <div class="text-center">
+                                <p class="text-muted mb-0">Don't have an account? <a asp-action="Register" class="text-purple fw-bold text-decoration-none">Create One</a></p>
+                            </div>
+                        </form>
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Login</button>
-                    
-                    <div class="text-center">
-                        <a asp-action="Register" class="text-decoration-none">Don't have an account? Register</a>
-                    </div>
-                </form>
+                </div>
+
+                <div class="text-center mt-4 animate-fade-in">
+                    <a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none small">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Home
+                    </a>
+                </div>
             </div>
         </div>
     </div>

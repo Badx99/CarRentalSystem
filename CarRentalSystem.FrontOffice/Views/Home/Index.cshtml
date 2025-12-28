@@ -1,85 +1,113 @@
-﻿@using CarRentalSystem.FrontOffice.Models.ViewModels
-@model HomeViewModel
-@{
-    ViewData["Title"] = "Home";
+﻿@{
+    ViewData["Title"] = "Luxury Car Rentals";
 }
 
-<div class="p-5 mb-4 bg-light rounded-3 bg-gradient" style="background: url('/images/hero-bg.jpg'); background-size: cover; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
-    <div class="container-fluid py-5 text-center text-white">
-        <h1 class="display-5 fw-bold">Find Your Perfect Drive</h1>
-        <p class="fs-4">Premium vehicles for every occasion. Best rates guaranteed.</p>
-        
-        <div class="card p-4 mx-auto mt-4 text-dark" style="max-width: 600px; text-shadow: none;">
-            <form asp-controller="Vehicles" asp-action="Catalog" method="get" class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Pick-up Date</label>
-                    <input type="date" name="startDate" class="form-control" required value="@DateTime.Today.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")">
+<div class="hero-section bg-dark text-light py-5 mb-5" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'); background-size: cover; background-position: center; min-height: 80vh; display: flex; align-items: center;">
+    <div class="container hero-parallax">
+        <div class="row align-items-center">
+            <div class="col-lg-7 animate-fade-in">
+                <h1 class="display-2 fw-bold mb-4">Experience the <span class="text-purple">Ultimate</span> Drive</h1>
+                <p class="lead mb-5 fs-4">Premium fleet of luxury cars for your next adventure. Comfort, style, and performance in every mile.</p>
+                <div class="d-flex gap-3">
+                    <a asp-controller="Vehicles" asp-action="Catalog" class="btn btn-purple btn-lg shadow-purple">
+                        <i class="fas fa-car me-2"></i>Browse Fleet
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-info-circle me-2"></i>Learn More
+                    </a>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Return Date</label>
-                    <input type="date" name="endDate" class="form-control" required value="@DateTime.Today.AddDays(3).ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")">
-                </div>
-                <div class="col-12 mt-3">
-                    <button type="submit" class="btn btn-primary w-100 btn-lg">Search Available Cars</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="row mb-5">
-    <div class="col-12 text-center">
-        <h2>Featured Vehicles</h2>
-        <p class="text-muted">Choose from our most popular models</p>
-    </div>
-</div>
-
-<div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-    @if(Model.FeaturedVehicles.Any())
-    {
-        @foreach (var vehicle in Model.FeaturedVehicles)
-        {
-            <div class="col">
-                <div class="vehicle-card h-100">
-                    <img src="@(vehicle.ImageUrl ?? "https://via.placeholder.com/400x250?text=Car+Image")" class="card-img-top" alt="@vehicle.Brand @vehicle.Model">
-                    <div class="vehicle-card-body d-flex flex-column h-100">
-                        <div class="mb-2">
-                            <span class="badge bg-secondary">@vehicle.VehicleTypeName</span>
-                        </div>
-                        <h5 class="card-title">@vehicle.Brand @vehicle.Model</h5>
-                        <p class="card-text text-muted">@vehicle.Year • @vehicle.Color</p>
-                        
-                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <span class="h5 mb-0 text-primary">$@vehicle.DailyRate<small class="text-muted fs-6">/day</small></span>
-                            <a asp-controller="Vehicles" asp-action="Details" asp-route-id="@vehicle.Id" class="btn btn-outline-primary">View Details</a>
-                        </div>
+                
+                <div class="mt-5 d-flex gap-4">
+                    <div class="stat">
+                        <h3 class="fw-bold mb-0 counter" data-target="500">0</h3>
+                        <p class="text-muted small">Vehicles</p>
+                    </div>
+                    <div class="stat">
+                        <h3 class="fw-bold mb-0 counter" data-target="15">0</h3>
+                        <p class="text-muted small">Locations</p>
+                    </div>
+                    <div class="stat">
+                        <h3 class="fw-bold mb-0 counter" data-target="10000">0</h3>
+                        <p class="text-muted small">Happy Customers</p>
                     </div>
                 </div>
             </div>
-        }
-    }
-    else
-    {
-        <div class="col-12 text-center">
-            <p>No featured vehicles available at the moment.</p>
         </div>
-    }
+    </div>
 </div>
 
-<div class="row bg-light py-5 rounded">
-    <div class="col-md-4 text-center">
-        <i class="bi bi-shield-check fs-1 text-primary"></i>
-        <h3>Secure Booking</h3>
-        <p>Your safety and privacy are our top priority.</p>
+<div class="container py-5" id="features">
+    <div class="text-center mb-5 fade-in-on-scroll">
+        <h6 class="text-purple fw-bold text-uppercase">Why Choose Us</h6>
+        <h2 class="display-5 fw-bold">Premium Services for You</h2>
+        <div class="mx-auto bg-purple mt-3" style="width: 60px; height: 4px; border-radius: 2px;"></div>
     </div>
-    <div class="col-md-4 text-center">
-        <i class="bi bi-tag fs-1 text-primary"></i>
-        <h3>Best Price Guarantee</h3>
-        <p>We match any competitor's price for the same vehicle.</p>
+    
+    <div class="row g-4 mt-2">
+        <div class="col-md-4 fade-in-on-scroll">
+            <div class="card h-100 border-0 bg-light p-4 text-center hover-lift">
+                <div class="feature-icon bg-white text-purple shadow-sm rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="fas fa-gem fa-2x"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Luxury Fleet</h4>
+                <p class="text-muted">A wide selection of high-end vehicles from top brands like BMW, Mercedes, and Porsche.</p>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in-on-scroll">
+            <div class="card h-100 border-0 bg-light p-4 text-center hover-lift">
+                <div class="feature-icon bg-white text-purple shadow-sm rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="fas fa-shield-alt fa-2x"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Fully Insured</h4>
+                <p class="text-muted">Drive with peace of mind. All our rentals include comprehensive insurance coverage.</p>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in-on-scroll">
+            <div class="card h-100 border-0 bg-light p-4 text-center hover-lift">
+                <div class="feature-icon bg-white text-purple shadow-sm rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="fas fa-clock fa-2x"></i>
+                </div>
+                <h4 class="fw-bold mb-3">24/7 Support</h4>
+                <p class="text-muted">Our dedicated concierge team is available around the clock to assist you with any needs.</p>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4 text-center">
-        <i class="bi bi-headset fs-1 text-primary"></i>
-        <h3>24/7 Support</h3>
-        <p>Our team is alway available to assist you.</p>
+</div>
+
+<div class="bg-light py-5 mt-5">
+    <div class="container fade-in-on-scroll">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="https://images.unsplash.com/photo-1494905998402-395d579af36f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Luxury Interior" class="img-fluid rounded-4 shadow">
+            </div>
+            <div class="col-lg-6 ps-lg-5">
+                <h6 class="text-purple fw-bold text-uppercase">Premium Experience</h6>
+                <h2 class="display-6 fw-bold mb-4">Redefining Car Rentals</h2>
+                <p class="text-muted mb-4 fs-5">We provide more than just a car. We provide a seamless experience from the moment you book until the moment you return the keys.</p>
+                <ul class="list-unstyled mb-5">
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="fas fa-check-circle text-purple me-3"></i> <span>Doorstep delivery and pickup service</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="fas fa-check-circle text-purple me-3"></i> <span>Professional chauffeurs upon request</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="fas fa-check-circle text-purple me-3"></i> <span>No hidden fees, transparent pricing</span>
+                    </li>
+                </ul>
+                <a asp-controller="Vehicles" asp-action="Catalog" class="btn btn-purple btn-lg shadow-purple">Explore Collection</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5 my-5 fade-in-on-scroll">
+    <div class="bg-purple text-light rounded-4 p-5 text-center shadow">
+        <h2 class="display-5 fw-bold mb-4">Ready to Start Your Journey?</h2>
+        <p class="lead mb-5 fs-4">Join thousands of satisfied customers who choose Luxury Rentals for their travel needs.</p>
+        <div class="d-flex justify-content-center gap-3">
+             <a asp-controller="Auth" asp-action="Register" class="btn btn-light btn-lg px-5">Join Now</a>
+             <a asp-controller="Vehicles" asp-action="Catalog" class="btn btn-outline-light btn-lg px-5">Browse Cars</a>
+        </div>
     </div>
 </div>

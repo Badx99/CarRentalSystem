@@ -13,6 +13,7 @@ public class ReservationDto
         public string VehicleTypeName { get; set; } = string.Empty;
         public string? VehicleImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string? QRCode { get; set; }
     }
 
 public class ReservationDetailDto : ReservationDto

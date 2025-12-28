@@ -48,7 +48,7 @@
                                FontSize="36" FontWeight="Bold" Foreground="#1B1448" Margin="0,10,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                         <TextBlock Text="Active: " FontSize="12" Foreground="#AA1B1448"/>
-                        <TextBlock Text="{Binding Stats.ActiveRentals, FallbackValue=0}" FontSize="12" Foreground="#AA1B1448"/>
+                        <TextBlock Text="{Binding Stats.ActiveReservations, FallbackValue=0}" FontSize="12" Foreground="#AA1B1448"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -59,10 +59,6 @@
                     <TextBlock Text="Customers" FontSize="14" Foreground="White" FontWeight="SemiBold"/>
                     <TextBlock Text="{Binding Stats.TotalCustomers, FallbackValue=0}" 
                                FontSize="36" FontWeight="Bold" Foreground="White" Margin="0,10,0,0"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                        <TextBlock Text="Employees: " FontSize="12" Foreground="#AAFFFFFF"/>
-                        <TextBlock Text="{Binding Stats.TotalEmployees, FallbackValue=0}" FontSize="12" Foreground="#AAFFFFFF"/>
-                    </StackPanel>
                 </StackPanel>
             </Border>
 
@@ -73,7 +69,7 @@
                     <TextBlock FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,10,0,0">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="${0:N2}">
-                                <Binding Path="Stats.TotalRevenue" FallbackValue="0"/>
+                                <Binding Path="Stats.TotalRevenueThisMonth" FallbackValue="0"/>
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
@@ -100,7 +96,7 @@
             <Border CornerRadius="10" Background="#28AEED" Margin="0,0,15,0" Padding="20" Height="100">
                 <StackPanel>
                     <TextBlock Text="Confirmed" FontSize="14" Foreground="White" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding Stats.ConfirmedReservations, FallbackValue=0}" 
+                    <TextBlock Text="{Binding Stats.ConfirmedReservationsThisMonth, FallbackValue=0}" 
                                FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,10,0,0"/>
                 </StackPanel>
             </Border>
@@ -118,7 +114,7 @@
             <Border CornerRadius="10" Background="#8A16C1" Margin="0,0,0,0" Padding="20" Height="100">
                 <StackPanel>
                     <TextBlock Text="Completed" FontSize="14" Foreground="White" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding Stats.CompletedReservations, FallbackValue=0}" 
+                    <TextBlock Text="{Binding Stats.CompletedReservationsThisMonth, FallbackValue=0}" 
                                FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,10,0,0"/>
                 </StackPanel>
             </Border>
